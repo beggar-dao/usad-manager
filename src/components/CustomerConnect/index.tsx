@@ -17,5 +17,11 @@ export default function CustomConnectButton() {
     }
   }, [isConnected, chain, switchChain]);
 
-  return <ConnectButton accountStatus="address" label="Sign in" />;
+  return (
+    <ConnectButton
+      showBalance={false}
+      accountStatus="address"
+      label="Sign in"
+    />
+  );
 }

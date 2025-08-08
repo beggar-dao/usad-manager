@@ -1,11 +1,12 @@
 import { LinkOutlined } from "@ant-design/icons";
 import type { RequestConfig } from "@umijs/max";
-import { Link } from "@umijs/max";
+import { Link, useModel } from "@umijs/max";
 import defaultSettings from "../config/defaultSettings";
 import { errorConfig } from "./requestErrorConfig";
 import "@ant-design/v5-patch-for-react-19";
 import RainbowWallet from "./components/RainbowWallet";
 import CustomConnectButton from "./components/CustomerConnect";
+import { Spin } from "antd";
 
 const isDev = process.env.NODE_ENV === "development";
 
@@ -15,6 +16,7 @@ export function rootContainer(container: React.ReactNode) {
   return <RainbowWallet>{container}</RainbowWallet>;
 }
 export const layout: any = () => {
+  const { loading } = useModel("global");
   const initialState = {
     settings: {
       ...defaultSettings,
@@ -54,7 +56,12 @@ export const layout: any = () => {
     menuHeaderRender: undefined,
 
     childrenRender: (children) => {
-      return <>{children}</>;
+      return (
+        <>
+          <Spin spinning={loading} fullscreen />
+          {children}
+        </>
+      );
     },
     ...initialState?.settings,
   };

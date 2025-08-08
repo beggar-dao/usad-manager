@@ -13,12 +13,25 @@
  * @doc https://umijs.org/docs/guides/routes
  */
 export default [
+  // {
+  //   name: "dashboard",
+  //   icon: "dashboard",
+  //   path: "/dashboard",
+  //   component: "./dashboard",
+  // },
   {
-    name: "mint",
+    name: "Mint",
     icon: "table",
     path: "/mint",
     component: "./mint",
   },
+  {
+    name: "Burn",
+    icon: "table",
+    path: "/burn",
+    component: "./burn",
+  },
+
   {
     path: "/",
     redirect: "/mint",
