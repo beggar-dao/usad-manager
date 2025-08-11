@@ -27,9 +27,15 @@ export default [
   },
   {
     name: "Burn",
-    icon: "table",
+    icon: "Signature",
     path: "/burn",
     component: "./burn",
+  },
+  {
+    name: "Administrator",
+    icon: "user",
+    path: "/admin",
+    component: "./admin",
   },
 
   {

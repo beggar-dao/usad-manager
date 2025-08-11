@@ -5,10 +5,10 @@ import Dashboard from "../dashboard";
 
 export default function Mint() {
   const [form] = Form.useForm();
-  const [inputValue, setInputValue] = useState<string>("");
   const [disabled, setDisabled] = useState(true);
-  const { status, changeNetWork, openConnectModal, setCallbackFunc } =
+  const { status, changeNetWork, openConnectModal, handleMint } =
     useModel("account");
+
   const values = Form.useWatch([], form);
   useEffect(() => {
     form
@@ -20,6 +20,7 @@ export default function Mint() {
     if (status === "connected") {
       await changeNetWork(9200);
       console.log("Success:", values);
+      handleMint(values.amount);
       return;
     }
     openConnectModal?.();

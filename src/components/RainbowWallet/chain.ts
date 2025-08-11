@@ -2,7 +2,7 @@ const config = {
   development: {
     id: 15042,
     name: "TOK Dev",
-    iconUrl: "https://scan.tokchain.org/favicon.ico",
+    iconUrl: "https://tokscan.io/favicon.ico",
     iconBackground: "#000",
     nativeCurrency: {
       decimals: 18,
@@ -21,7 +21,7 @@ const config = {
   test: {
     id: 15042,
     name: "TOK Dev",
-    iconUrl: "https://scan.tokchain.org/favicon.ico",
+    iconUrl: "https://tokscan.io/favicon.ico",
     iconBackground: "#000",
     nativeCurrency: {
       decimals: 18,

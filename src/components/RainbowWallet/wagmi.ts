@@ -15,7 +15,7 @@ export const config = getDefaultConfig({
     {
       id: 9200,
       name: "TOK",
-      iconUrl: "https://scan.tokchain.org/favicon.ico",
+      iconUrl: "https://tokscan.io/favicon.ico",
       iconBackground: "#000",
       nativeCurrency: {
         decimals: 18,
@@ -34,7 +34,7 @@ export const config = getDefaultConfig({
     {
       id: 15042,
       name: "TOK Dev",
-      iconUrl: "https://scan.tokchain.org/favicon.ico",
+      iconUrl: "https://tokscan.io/favicon.ico",
       iconBackground: "#000",
       nativeCurrency: {
         decimals: 18,

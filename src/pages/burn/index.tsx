@@ -3,11 +3,18 @@ import { useModel } from "@umijs/max";
 import { Button, Card, Form, InputNumber } from "antd";
 import { useEffect, useState } from "react";
 import Dashboard from "../dashboard";
+import { weiToEther } from "@/utils";
 
 export default function Mint() {
   const [form] = Form.useForm();
   const [disabled, setDisabled] = useState(true);
-  const { status, changeNetWork, openConnectModal } = useModel("account");
+  const {
+    status,
+    changeNetWork,
+    openConnectModal,
+    readContractsData,
+    handleRedeem,
+  } = useModel("account");
   const values = Form.useWatch([], form);
   useEffect(() => {
     form
@@ -19,6 +26,7 @@ export default function Mint() {
     if (status === "connected") {
       await changeNetWork(9200);
       console.log("Success:", values);
+      handleRedeem(values.amount);
       return;
     }
     openConnectModal?.();
@@ -56,11 +64,57 @@ export default function Mint() {
         </div>
         <Form size="large" onFinish={onFinish} layout="vertical" form={form}>
           <Form.Item
-            rules={[{ required: true, message: "Please input amount" }]}
+            rules={[
+              { required: true, message: "Please input amount" },
+              {
+                validator: (_, value) => {
+                  if (!value) {
+                    return Promise.reject("Please input amount");
+                  }
+                  const maxBalance = readContractsData
+                    ? Number(weiToEther(readContractsData[2].result))
+                    : 0;
+                  if (value > maxBalance) {
+                    return Promise.reject(
+                      `Amount cannot exceed ${maxBalance} USAD`
+                    );
+                  }
+                  return Promise.resolve();
+                },
+              },
+            ]}
             name="amount"
             label="Amount"
           >
-            <InputNumber min={1} className="w-full" />
+            <InputNumber
+              onKeyDown={(e) => {
+                // 阻止科学计数法相关的按键
+                if (
+                  ![
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                    "5",
+                    "6",
+                    "7",
+                    "8",
+                    "9",
+                    "0",
+                    ".",
+                    "Backspace",
+                  ].includes(e.key)
+                ) {
+                  e.preventDefault();
+                }
+                // 防止重复输入小数点
+                if (e.key === "." && e.currentTarget.value.includes(".")) {
+                  e.preventDefault();
+                }
+              }}
+              min={1}
+              className="w-full"
+            />
           </Form.Item>
           <div className="flex items-center gap-2 mb-6 text-xs text-gray-500">
             <svg
@@ -79,7 +133,11 @@ export default function Mint() {
               <path d="M12 16v-4"></path>
               <path d="M12 8h.01"></path>
             </svg>
-            <span>Available balance: 25,500.75 USAD</span>
+            <span>
+              Available balance:{" "}
+              {readContractsData && weiToEther(readContractsData[2].result)}{" "}
+              USAD
+            </span>
           </div>
           <Form.Item label={null}>
             <Button
@@ -88,7 +146,7 @@ export default function Mint() {
               htmlType="submit"
               type="primary"
             >
-              Mint
+              Burn
             </Button>
           </Form.Item>
         </Form>
