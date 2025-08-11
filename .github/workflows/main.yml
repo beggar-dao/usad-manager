@@ -6,7 +6,7 @@ on:
   workflow_dispatch: # 允许手动触发
 
 env:
-  SERVER_DEPLOY_PATH: '/data/apps/nginx/www/gbpc-manager' # 服务器上的部署路径
+  SERVER_DEPLOY_PATH: '/data/apps/nginx/www/usad-manager' # 服务器上的部署路径
 
 jobs:
   build-and-deploy:
