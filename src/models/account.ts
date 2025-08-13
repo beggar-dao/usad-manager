@@ -44,14 +44,14 @@ export default function AccountModel() {
         },
       ],
     });
-  console.log(readContractsData);
-  const isSelf = useMemo(
-    () =>
+  console.log(readContractsData, address);
+  const isSelf = useMemo(() => {
+    return (
       (readContractsData &&
-        readContractsData[1]?.result?.toString().toLocaleLowerCase()) ===
-      (address && address.toString().toLocaleLowerCase()),
-    [readContractsData, address],
-  );
+        readContractsData[0]?.result?.toString().toLowerCase()) ===
+      (address && address.toString().toLowerCase())
+    );
+  }, [readContractsData, address]);
   console.log(isSelf);
   const [hash, setHash] = useState<`0x${string}` | undefined>(undefined);
   const { writeContract } = useWriteContract();
@@ -108,7 +108,7 @@ export default function AccountModel() {
         onError: (error) => {
           setLoading(false);
           console.log(error);
-          message.error(error.message);
+          message.error('Failed');
         },
       },
     );
