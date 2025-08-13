@@ -47,7 +47,7 @@ export default function Dashboard() {
             <div className="text-lg font-semibold text-gray-900 mt-1">
               {weiToEther(
                 (readContractsData && readContractsData[1].result) || 0
-              )}
+              ) || 0}
             </div>
           </div>
         </div>
@@ -59,7 +59,7 @@ export default function Dashboard() {
             <div className="text-lg font-semibold text-gray-900 mt-1">
               {weiToEther(
                 (readContractsData && readContractsData[2].result) || 0
-              )}
+              ) || 0}
             </div>
           </div>
         </div>

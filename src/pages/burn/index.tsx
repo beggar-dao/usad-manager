@@ -68,9 +68,6 @@ export default function Mint() {
               { required: true, message: "Please input amount" },
               {
                 validator: (_, value) => {
-                  if (!value) {
-                    return Promise.reject("Please input amount");
-                  }
                   const maxBalance = readContractsData
                     ? Number(weiToEther(readContractsData[2].result))
                     : 0;
