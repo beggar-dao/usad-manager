@@ -393,7 +393,7 @@ const data: any = {
     ],
   },
   production: {
-    address: '0xF33C8Ea507CE20374BFd92920a8de53f6B394aac',
+    address: '0x081d18B1E3939040Da055a9531C6591607240081',
     abi: [
       {
         constant: true,
