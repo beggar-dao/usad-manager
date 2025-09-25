@@ -1,5 +1,5 @@
-const { ethers } = require("ethers");
-console.log(ethers);
+import { ethers } from 'ethers';
+
 /**
  * 简单复制文本函数
  * @param text 要复制的文本
@@ -15,13 +15,13 @@ export function copyText(text: string): Promise<boolean> {
 
   // 兼容旧浏览器
   try {
-    const textarea = document.createElement("textarea");
+    const textarea = document.createElement('textarea');
     textarea.value = text;
-    textarea.style.position = "fixed";
-    textarea.style.left = "-9999px";
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
     document.body.appendChild(textarea);
     textarea.select();
-    const success = document.execCommand("copy");
+    const success = document.execCommand('copy');
     document.body.removeChild(textarea);
     return Promise.resolve(success);
   } catch (error) {
@@ -40,9 +40,9 @@ export function copyText(text: string): Promise<boolean> {
 export function maskString(
   str: string,
   prefixLength: number = 4,
-  suffixLength: number = 8
+  suffixLength: number = 8,
 ): string {
-  if (!str) return "";
+  if (!str) return '';
   // 如果字符串长度小于等于前后保留长度之和，则直接返回原字符串
   if (str.length <= prefixLength + suffixLength) {
     return str;
@@ -53,7 +53,7 @@ export function maskString(
   const suffix = str.substring(str.length - suffixLength);
 
   // 生成中间的替换字符
-  const mask = "...";
+  const mask = '...';
 
   // 拼接结果
   return prefix + mask + suffix;
@@ -61,10 +61,10 @@ export function maskString(
 
 // 将wei转换为ether
 export function weiToEther(wei: any) {
-  return (wei && ethers.formatEther(`${wei || ""}`)) || "";
+  return (wei && ethers.formatEther(`${wei || ''}`)) || '';
 }
 
 // 将ether转换为wei 大单位转小单位
 export function etherToWei(ether: any) {
-  return (ether && ethers.parseEther(`${ether || ""}`)) || "";
+  return (ether && ethers.parseEther(`${ether || ''}`)) || '';
 }
