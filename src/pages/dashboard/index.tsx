@@ -1,12 +1,12 @@
 import CopyComponent from "@/components/CopyComponent";
-import { copyText, maskString, weiToEther } from "@/utils";
-import { BlockOutlined, CopyOutlined } from "@ant-design/icons";
-import { Card, message } from "antd";
+import { maskString, weiToEther } from "@/utils";
 import abiData from "@/utils/abi";
 import { useModel } from "@umijs/max";
+import { Card } from "antd";
 
 export default function Dashboard() {
   const { readContractsData } = useModel("account");
+
   return (
     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
       <Card>
@@ -29,15 +29,10 @@ export default function Dashboard() {
               Administrator Address
             </div>
             <div className="text-lg font-semibold text-gray-900 mt-1">
-              {maskString(
-                readContractsData && (readContractsData[0].result as string),
-                8
-              )}
+              {maskString(readContractsData?.[0].result as string, 8)}
             </div>
           </div>
-          <CopyComponent
-            text={readContractsData && (readContractsData[0].result as string)}
-          />
+          <CopyComponent text={readContractsData?.[0].result as string} />
         </div>
       </Card>
       <Card>
@@ -45,9 +40,7 @@ export default function Dashboard() {
           <div className="flex-1">
             <div className="text-sm text-gray-600 font-medium">Total USAD</div>
             <div className="text-lg font-semibold text-gray-900 mt-1">
-              {weiToEther(
-                (readContractsData && readContractsData[1].result) || 0
-              ) || 0}
+              {weiToEther(readContractsData?.[1].result ?? 0) || 0}
             </div>
           </div>
         </div>
@@ -57,9 +50,7 @@ export default function Dashboard() {
           <div className="flex-1">
             <div className="text-sm text-gray-600 font-medium">Balance</div>
             <div className="text-lg font-semibold text-gray-900 mt-1">
-              {weiToEther(
-                (readContractsData && readContractsData[2].result) || 0
-              ) || 0}
+              {weiToEther(readContractsData?.[2].result || 0) || 0}
             </div>
           </div>
         </div>

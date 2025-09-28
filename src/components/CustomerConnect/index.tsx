@@ -1,5 +1,4 @@
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useEffect } from "react";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import { useAccount, useSwitchChain } from "wagmi";
 
 // 创建自定义连接按钮组件

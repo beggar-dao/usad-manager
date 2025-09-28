@@ -44,15 +44,14 @@ export default function AccountModel() {
         },
       ],
     });
-  console.log(readContractsData, address);
+
   const isSelf = useMemo(() => {
     return (
-      (readContractsData &&
-        readContractsData[0]?.result?.toString().toLowerCase()) ===
-      (address && address.toString().toLowerCase())
+      (readContractsData?.[0]?.result?.toString().toLowerCase()) ===
+      (address?.toString().toLowerCase())
     );
   }, [readContractsData, address]);
-  console.log(isSelf);
+
   const [hash, setHash] = useState<`0x${string}` | undefined>(undefined);
   const { writeContract } = useWriteContract();
   const [callbackFunc, setCallbackFunc] = useState(
@@ -65,6 +64,7 @@ export default function AccountModel() {
   const { status: transactionStatus } = useWaitForTransactionReceipt({
     hash,
   });
+
   useEffect(() => {
     console.log('transactionStatus', transactionStatus);
     if (transactionStatus === 'success') {
@@ -80,8 +80,7 @@ export default function AccountModel() {
     await switchChain({ chainId });
   };
 
-  const handleMint = (account: number) => {
-    console.log(etherToWei(account), 'etherToWei(account)');
+  const handleMint = (amount: number) => {
     if (!isSelf) {
       message.error('No permission');
       return false;
@@ -92,7 +91,7 @@ export default function AccountModel() {
         address: abiData.address,
         abi: abiData.abi,
         functionName: 'issue',
-        args: [etherToWei(account)],
+        args: [etherToWei(amount)],
       },
       {
         onSuccess: (data) => {
@@ -113,18 +112,20 @@ export default function AccountModel() {
       },
     );
   };
-  const handleRedeem = (account: number) => {
+
+  const handleRedeem = (amount: number) => {
     if (!isSelf) {
       message.error('No permission');
       return false;
     }
+
     setLoading(true);
     writeContract(
       {
         address: abiData.address,
         abi: abiData.abi,
         functionName: 'redeem',
-        args: [etherToWei(account)],
+        args: [etherToWei(amount)],
       },
       {
         onSuccess: (data) => {
