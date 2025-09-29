@@ -40,7 +40,7 @@ export default function Dashboard() {
           <div className="flex-1">
             <div className="text-sm text-gray-600 font-medium">Total USAD</div>
             <div className="text-lg font-semibold text-gray-900 mt-1">
-              {weiToEther(readContractsData?.[1].result ?? 0) || 0}
+              {weiToEther((readContractsData?.[1].result ?? 0) as string) || 0}
             </div>
           </div>
         </div>
@@ -50,7 +50,7 @@ export default function Dashboard() {
           <div className="flex-1">
             <div className="text-sm text-gray-600 font-medium">Balance</div>
             <div className="text-lg font-semibold text-gray-900 mt-1">
-              {weiToEther(readContractsData?.[2].result || 0) || 0}
+              {weiToEther((readContractsData?.[2].result || 0) as string) || 0}
             </div>
           </div>
         </div>

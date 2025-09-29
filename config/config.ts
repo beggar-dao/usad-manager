@@ -2,11 +2,10 @@
 
 import { join } from 'node:path';
 import { defineConfig } from '@umijs/max';
+import tailwindcssPostcss from '@tailwindcss/postcss';
 import defaultSettings from './defaultSettings';
 
 import routes from './routes';
-
-const { REACT_APP_ENV = 'dev' } = process.env;
 
 /**
  * @name 使用公共路径
@@ -181,5 +180,5 @@ export default defineConfig({
   esbuildMinifyIIFE: true,
   requestRecord: {},
   exportStatic: {},
-  tailwindcss: {},
+  extraPostCSSPlugins: [tailwindcssPostcss],
 });

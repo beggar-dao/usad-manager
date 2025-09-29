@@ -100,20 +100,14 @@ export default function Mint() {
                   Administrator Address
                 </p>
                 <p className="font-mono text-lg text-blue-900 font-semibold">
-                  {maskString(
-                    readContractsData && (readContractsData[0].result as string)
-                  )}
+                  {maskString(readContractsData?.[0].result as string)}
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
                   Full access to all contract functions
                 </p>
               </div>
             </div>
-            <CopyComponent
-              text={
-                readContractsData && (readContractsData[0].result as string)
-              }
-            />
+            <CopyComponent text={readContractsData?.[0].result as string}/>
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -190,7 +184,7 @@ export default function Mint() {
               stroke-linecap="round"
               stroke-linejoin="round"
               aria-label="Alert Triangle"
-              className="lucide lucide-alert-triangle w-6 h-6 text-red-600 flex-shrink-0 mt-0.5"
+              className="lucide lucide-alert-triangle w-6 h-6 text-red-600 shrink-0 mt-0.5"
             >
               <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
               <path d="M12 9v4"></path>

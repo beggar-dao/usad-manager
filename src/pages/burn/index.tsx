@@ -71,7 +71,7 @@ export default function Mint() {
               {
                 validator: (_, value) => {
                   const maxBalance = readContractsData
-                    ? Number(weiToEther(readContractsData[2].result))
+                    ? Number(weiToEther(readContractsData?.[2]?.result as string))
                     : 0;
                   if (value > maxBalance) {
                     return Promise.reject(
@@ -134,7 +134,7 @@ export default function Mint() {
             </svg>
             <span>
               Available balance:{" "}
-              {readContractsData && weiToEther(readContractsData[2].result)}{" "}
+              {readContractsData && weiToEther(readContractsData?.[2]?.result as string)}{" "}
               USAD
             </span>
           </div>
