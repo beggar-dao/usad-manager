@@ -66,7 +66,6 @@ export default function AccountModel() {
   });
 
   useEffect(() => {
-    console.log('transactionStatus', transactionStatus);
     if (transactionStatus === 'success') {
       callbackFunc();
     } else if (transactionStatus === 'error') {
@@ -80,11 +79,12 @@ export default function AccountModel() {
     await switchChain({ chainId });
   };
 
-  const handleMint = (amount: number) => {
+  const handleMint = (amount: string) => {
     if (!isSelf) {
       message.error('No permission');
       return false;
     }
+
     setLoading(true);
     writeContract(
       {
@@ -95,7 +95,6 @@ export default function AccountModel() {
       },
       {
         onSuccess: (data) => {
-          console.log(data, 'handleMint');
           setHash(data);
           setCallbackFunc(() => () => {
             message.success('Mint success');
@@ -104,16 +103,15 @@ export default function AccountModel() {
             setCallbackFunc(() => () => {});
           });
         },
-        onError: (error) => {
+        onError: (_error) => {
           setLoading(false);
-          console.log(error);
           message.error('Failed');
         },
       },
     );
   };
 
-  const handleRedeem = (amount: number) => {
+  const handleRedeem = (amount: string) => {
     if (!isSelf) {
       message.error('No permission');
       return false;
@@ -139,7 +137,6 @@ export default function AccountModel() {
         },
         onError: (error) => {
           setLoading(false);
-          console.log(error);
           message.error(error.message);
         },
       },
@@ -170,7 +167,6 @@ export default function AccountModel() {
         },
         onError: (error) => {
           setLoading(false);
-          console.log(error);
           message.error(error.message);
         },
       },

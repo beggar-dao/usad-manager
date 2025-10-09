@@ -21,7 +21,6 @@ export default function Mint() {
   const onFinish = async (values: any) => {
     if (status === "connected") {
       await changeNetWork(9200);
-      console.log("Success:", values);
       handleMint(values.amount);
       return;
     }
