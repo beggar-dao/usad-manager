@@ -107,7 +107,7 @@ export default function Mint() {
                 </p>
               </div>
             </div>
-            <CopyComponent text={readContractsData?.[0].result as string}/>
+            <CopyComponent text={readContractsData?.[0].result as string} />
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -129,7 +129,7 @@ export default function Mint() {
             <div className="text-lg mb-1">🔥</div>
             <p className="text-xs text-gray-600 font-medium">Burn Tokens</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3 text-center">
+          <div className="bg-gray-50 cursor-pointer rounded-lg p-3 text-center" onClick={() => history.push("/blacklist")}>
             <div className="text-lg mb-1">🛡️</div>
             <p className="text-xs text-gray-600 font-medium">
               Manage Blacklist

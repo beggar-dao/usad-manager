@@ -3,6 +3,7 @@ import {
   useChainModal,
   useConnectModal,
 } from '@rainbow-me/rainbowkit';
+import { addBlacklist, deleteBlacklist } from '@/services/blacklist';
 import { useModel } from '@umijs/max';
 import { message } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
@@ -75,6 +76,7 @@ export default function AccountModel() {
       message.error('Failed');
     }
   }, [transactionStatus]);
+  
   const changeNetWork = async (chainId: number) => {
     await switchChain({ chainId });
   };
@@ -82,7 +84,7 @@ export default function AccountModel() {
   const handleMint = (amount: string) => {
     if (!isSelf) {
       message.error('No permission');
-      return false;
+      return;
     }
 
     setLoading(true);
@@ -114,7 +116,7 @@ export default function AccountModel() {
   const handleRedeem = (amount: string) => {
     if (!isSelf) {
       message.error('No permission');
-      return false;
+      return;
     }
 
     setLoading(true);
@@ -142,10 +144,11 @@ export default function AccountModel() {
       },
     );
   };
+
   const handleTransferOwnership = (address: string) => {
     if (!isSelf) {
       message.error('No permission');
-      return false;
+      return;
     }
     setLoading(true);
     writeContract(
@@ -172,11 +175,101 @@ export default function AccountModel() {
       },
     );
   };
+
+  const handleAddBlacklist = (blacklistAddress: string, onSuccess?: () => void) => {
+    if (!isSelf) {
+      message.error('No permission');
+      return;
+    }
+
+    setLoading(true);
+    writeContract(
+      {
+        address: abiData.address,
+        abi: abiData.abi,
+        functionName: 'addBlackList',
+        args: [blacklistAddress as `0x${string}`],
+      },
+      {
+        onSuccess: (txHash) => {
+          setHash(txHash);
+          setCallbackFunc(() => async () => {
+            try {
+              await addBlacklist({
+                contractAddress: abiData.address,
+                operatorAddress: address as string,
+                address: blacklistAddress,
+                hash: txHash,
+              });
+              message.success('Successfully added to blacklist');
+              onSuccess?.();
+            } catch (error) {
+              console.error('Failed to save to database:', error);
+              message.error('Transaction succeeded but failed to save to database');
+            } finally {
+              setLoading(false);
+              setCallbackFunc(() => () => {});
+            }
+          });
+        },
+        onError: (error) => {
+          setLoading(false);
+          message.error(error.message || 'Failed to add to blacklist');
+        },
+      },
+    );
+  };
+
+  const handleRemoveBlacklist = (blacklistAddress: string, onSuccess?: () => void) => {
+    if (!isSelf) {
+      message.error('No permission');
+      return;
+    }
+    setLoading(true);
+    writeContract(
+      {
+        address: abiData.address,
+        abi: abiData.abi,
+        functionName: 'removeBlackList',
+        args: [blacklistAddress as `0x${string}`],
+      },
+      {
+        onSuccess: (txHash) => {
+          setHash(txHash);
+          setCallbackFunc(() => async () => {
+            try {
+              await deleteBlacklist({
+                contractAddress: abiData.address,
+                operatorAddress: address as string,
+                address: blacklistAddress,
+                hash: txHash,
+              });
+              message.success('Successfully removed from blacklist');
+              onSuccess?.();
+            } catch (error) {
+              console.error('Failed to update database:', error);
+              message.error('Transaction succeeded but failed to update database');
+            } finally {
+              setLoading(false);
+              setCallbackFunc(() => () => {});
+            }
+          });
+        },
+        onError: (error) => {
+          setLoading(false);
+          message.error(error.message || 'Failed to remove from blacklist');
+        },
+      },
+    );
+  };
+  
   return {
     readContractsData,
     handleRedeem,
     handleMint,
     handleTransferOwnership,
+    handleAddBlacklist,
+    handleRemoveBlacklist,
     status,
     address,
     chainId,

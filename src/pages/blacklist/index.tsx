@@ -1,50 +1,50 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Flex, Typography } from 'antd';
+import { addBlacklist, getBlacklist, type BlacklistItem, type BlacklistResponse } from '@/services/blacklist';
+import abiData from '@/utils/abi';
+import { useModel, useRequest } from '@umijs/max';
+import { Button, Flex, message, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import BlacklistTable from './components/BlacklistTable';
 import CreateBlackAddress from './components/CreateBlackAddress';
 import SearchBar from './components/SearchBar';
 import StatisticsCards from './components/StatisticsCards';
-import type { BlacklistRecord } from './types';
 
 const { Title, Text } = Typography;
 
 export default function BlackList() {
   const [searchText, setSearchText] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  
+  // Get account model for blockchain transactions
+  const { 
+    status, 
+    handleAddBlacklist,
+    handleRemoveBlacklist,
+    changeNetWork,
+    openConnectModal 
+  } = useModel('account');
 
-  // Mock data - replace with actual data from your API
-  const data: BlacklistRecord[] = [
+  // Fetch blacklist data
+  const { data: blacklistResponse, loading, refresh } = useRequest(
+    () => getBlacklist({
+      pageNumber,
+      pageSize,
+    }),
     {
-      key: '1',
-      wallet: 'KxfxfxEc...8xJ7zxfk',
-      reason: 'Suspicious wallet address',
-      addedTime: '2025-07-03',
-      operator: 'Admin A',
-    },
-    {
-      key: '2',
-      wallet: 'KxQMFQS...17zHzfxz',
-      reason: 'Suspected fraud',
-      addedTime: '2025-07-08',
-      operator: 'Admin B',
-    },
-    {
-      key: '3',
-      wallet: 'KxBcXx6o...2xDx4.1xF',
-      reason: 'Confirmed scam',
-      addedTime: '2025-07-18',
-      operator: 'Admin A',
-    },
-  ];
+      refreshDeps: [pageNumber, pageSize],
+    }
+  );
+
+  const data = (blacklistResponse as BlacklistResponse)?.list || [];
+  const meta = (blacklistResponse as BlacklistResponse)?._meta;
 
   const filteredData = useMemo(
     () =>
       data.filter(
-        (item) =>
-          item.wallet.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.reason.toLowerCase().includes(searchText.toLowerCase()) ||
-          item.operator.toLowerCase().includes(searchText.toLowerCase())
+        (item: BlacklistItem) =>
+          item.address?.toLowerCase().includes(searchText.toLowerCase())
       ),
     [searchText, data]
   );
@@ -53,19 +53,46 @@ export default function BlackList() {
     setShowCreateForm(!showCreateForm);
   };
 
-  const handleCreateSubmit = (values: { address: string; reason: string }) => {
-    // TODO: Implement add to blacklist functionality
-    console.log('Add to blacklist:', values);
-    setShowCreateForm(false);
+  const handleCreateSubmit = async (values: { address: string; reason: string }) => {
+    // Check if user is connected
+    if (status !== 'connected') {
+      openConnectModal?.();
+      return;
+    }
+
+    // Ensure we're on the correct network
+    await changeNetWork(9200);
+
+    // Call the account model function to add to blacklist
+    handleAddBlacklist(values.address, () => {
+      setShowCreateForm(false);
+      refresh();
+    });
   };
 
   const handleCreateCancel = () => {
     setShowCreateForm(false);
   };
 
-  const handleDelete = (record: BlacklistRecord) => {
-    // TODO: Implement delete functionality
-    console.log('Delete record:', record);
+  const handleDelete = async (record: BlacklistItem) => {
+    // Check if user is connected
+    if (status !== 'connected') {
+      openConnectModal?.();
+      return;
+    }
+
+    // Ensure we're on the correct network
+    await changeNetWork(9200);
+
+    // Call the account model function to remove from blacklist
+    handleRemoveBlacklist(record.address as string, () => {
+      refresh();
+    });
+  };
+
+  const handlePageChange = (page: number, pageSize: number) => {
+    setPageNumber(page);
+    setPageSize(pageSize);
   };
 
   return (
@@ -93,9 +120,9 @@ export default function BlackList() {
 
       {/* Statistics Cards */}
       <StatisticsCards
-        totalCount={data.length}
+        totalCount={meta?.totalCount || 0}
         pendingCount={0}
-        confirmedCount={data.length}
+        confirmedCount={filteredData.length}
       />
 
       {/* Search and Action Bar */}
@@ -105,7 +132,17 @@ export default function BlackList() {
       />
 
       {/* Table Section */}
-      <BlacklistTable data={filteredData} onDelete={handleDelete} />
+      <BlacklistTable 
+        data={filteredData} 
+        loading={loading}
+        onDelete={handleDelete}
+        pagination={{
+          current: pageNumber,
+          pageSize: pageSize,
+          total: meta?.totalCount || 0,
+          onChange: handlePageChange,
+        }}
+      />
     </div>
   );
 }

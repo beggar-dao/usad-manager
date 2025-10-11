@@ -63,27 +63,71 @@ interface BlacklistRecord {
 ### Main Component (`index.tsx`)
 
 The main component orchestrates all sub-components and manages:
-- Search state
-- Create form visibility state (toggle on/off)
-- Data filtering
-- Event handlers for add, submit, cancel, and delete actions
+- **Data fetching** using `useRequest` hook with `getBlacklist` API
+- **Pagination state** (page number and page size)
+- **Search state** for filtering results
+- **Create form visibility state** (toggle on/off)
+- **Data filtering** based on search text
+- **Event handlers** for add, submit, cancel, delete, and pagination actions
 
 **Features:**
-- Toggle create form visibility by clicking "Add to List" button
-- Form appears below the header section when shown
-- Form hides when clicking "Add to List" again, Cancel button, or after successful submission
+- **API Integration**: Fetches blacklist data from backend API
+- **Automatic refresh**: Data refreshes when pagination changes
+- **Manual refresh**: Data refreshes after add/delete operations
+- **Loading states**: Shows loading indicator during data fetch
+- **Pagination**: Server-side pagination with page size control
+- **Search filtering**: Client-side filtering by address
+- **Toggle create form**: Form appears below header section when shown
+- **Form auto-hide**: Form hides after successful submission or cancel
 
 ## Usage
 
 The page is accessible at `/blacklist` route and is integrated with the application's navigation menu.
 
+## API Integration
+
+The page uses the following API services from `/src/services/blacklist.ts`:
+
+- **`getBlacklist(params)`** - Fetches paginated blacklist data
+- **`addBlacklist(params)`** - Adds new address to blacklist (to be implemented)
+- **`deleteBlacklist(params)`** - Removes address from blacklist (to be implemented)
+
+## Implementation Details
+
+### Add to Blacklist Flow
+
+1. **User Input**: User fills in address and reason in the form
+2. **Wallet Check**: Verifies user is connected to wallet
+3. **Network Switch**: Ensures user is on chain ID 9200
+4. **Smart Contract Call**: Calls `addBlackList(_evilUser)` function via `handleAddBlacklist`
+5. **Transaction Wait**: Waits for transaction confirmation
+6. **Database Save**: Saves transaction details to backend via `addBlacklist` API
+7. **UI Update**: Shows success message and refreshes data
+8. **Form Close**: Automatically closes the form
+
+### Remove from Blacklist Flow
+
+1. **User Action**: User clicks delete button on a blacklist record
+2. **Wallet Check**: Verifies user is connected to wallet
+3. **Network Switch**: Ensures user is on chain ID 9200
+4. **Smart Contract Call**: Calls `removeBlackList(_clearedUser)` function via `handleRemoveBlacklist`
+5. **Transaction Wait**: Waits for transaction confirmation
+6. **Database Update**: Updates transaction details in backend via `deleteBlacklist` API
+7. **UI Update**: Shows success message and refreshes data
+
+### Error Handling
+
+- **Not Connected**: Opens connect modal
+- **Wrong Network**: Switches to correct network automatically
+- **Transaction Failed**: Shows error message from blockchain
+- **Database Operation Failed**: Shows warning but transaction is still on-chain
+
 ## TODO
 
-- [ ] Implement API integration for fetching blacklist data
-- [ ] Implement add to blacklist functionality
-- [ ] Implement delete from blacklist functionality
-- [ ] Add form/modal for adding new blacklist entries
+- [x] ~~Implement API integration for fetching blacklist data~~
+- [x] ~~Add pagination state management~~
+- [x] ~~Add loading states~~
+- [x] ~~Implement add to blacklist functionality with blockchain transaction~~
+- [x] ~~Implement delete from blacklist functionality with blockchain transaction~~
 - [ ] Add confirmation dialog for delete action
-- [ ] Add pagination state management
-- [ ] Add loading states
-- [ ] Add error handling
+- [ ] Add search by address

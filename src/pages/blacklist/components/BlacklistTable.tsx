@@ -1,59 +1,64 @@
 import { DeleteOutlined } from '@ant-design/icons';
-import { Button, Card, Table, Tag } from 'antd';
+import type { BlacklistItem } from '@/services/blacklist';
+import { Button, Card, Table } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { BlacklistRecord } from '../types';
+import dayjs from 'dayjs';
 
 interface BlacklistTableProps {
-  data: BlacklistRecord[];
-  onDelete: (record: BlacklistRecord) => void;
+  data: BlacklistItem[];
+  loading?: boolean;
+  onDelete: (record: BlacklistItem) => void;
+  pagination?: {
+    current: number;
+    pageSize: number;
+    total: number;
+    onChange: (page: number, pageSize: number) => void;
+  };
 }
 
-export default function BlacklistTable({ data, onDelete }: BlacklistTableProps) {
-  const getReasonColor = (reason: string): string => {
-    if (reason.toLowerCase().includes('fraud') || reason.toLowerCase().includes('scam')) {
-      return 'red';
-    }
-    if (reason.toLowerCase().includes('suspicious')) {
-      return 'orange';
-    }
-    if (reason.toLowerCase().includes('confirmed')) {
-      return 'volcano';
-    }
-    return 'default';
-  };
-
-  const columns: ColumnsType<BlacklistRecord> = [
+export default function BlacklistTable({ 
+  data, 
+  loading, 
+  onDelete,
+  pagination 
+}: BlacklistTableProps) {
+  const columns: ColumnsType<BlacklistItem> = [
     {
-      title: 'Wallet',
-      dataIndex: 'wallet',
-      key: 'wallet',
-      width: '25%',
-    },
-    {
-      title: 'Reason',
-      dataIndex: 'reason',
-      key: 'reason',
-      width: '25%',
-      render: (reason: string) => (
-        <Tag color={getReasonColor(reason)}>{reason}</Tag>
+      title: 'Address',
+      dataIndex: 'address',
+      key: 'address',
+      width: '30%',
+      render: (address: string) => (
+        <span style={{ fontFamily: 'monospace' }}>{address}</span>
       ),
     },
     {
-      title: 'Added Time',
-      dataIndex: 'addedTime',
-      key: 'addedTime',
+      title: 'Contract Address',
+      dataIndex: 'contractAddress',
+      key: 'contractAddress',
+      width: '30%',
+      render: (address: string) => (
+        <span style={{ fontFamily: 'monospace' }}>{address}</span>
+      ),
+    },
+    {
+      title: 'Created Time',
+      dataIndex: 'createTime',
+      key: 'createTime',
       width: '20%',
+      render: (time: number) => time ? dayjs(time * 1000).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       title: 'Operator',
-      dataIndex: 'operator',
-      key: 'operator',
-      width: '20%',
+      dataIndex: 'operatorAddress',
+      key: 'operatorAddress',
+      width: '15%',
+      render: (address: string) => address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '-',
     },
     {
       title: 'Action',
       key: 'action',
-      width: '10%',
+      width: '5%',
       render: (_, record) => (
         <Button
           type="text"
@@ -61,6 +66,7 @@ export default function BlacklistTable({ data, onDelete }: BlacklistTableProps) 
           icon={<DeleteOutlined />}
           size="small"
           onClick={() => onDelete(record)}
+          disabled={record.isDeleted === 1}
         />
       ),
     },
@@ -71,11 +77,16 @@ export default function BlacklistTable({ data, onDelete }: BlacklistTableProps) 
       <Table
         columns={columns}
         dataSource={data}
-        pagination={{
-          pageSize: 10,
+        loading={loading}
+        rowKey="id"
+        pagination={pagination ? {
+          current: pagination.current,
+          pageSize: pagination.pageSize,
+          total: pagination.total,
           showSizeChanger: true,
           showTotal: (total) => `Total ${total} records`,
-        }}
+          onChange: pagination.onChange,
+        } : false}
       />
     </Card>
   );
