@@ -1,8 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { addBlacklist, getBlacklist, type BlacklistItem, type BlacklistResponse } from '@/services/blacklist';
-import abiData from '@/utils/abi';
+import { getBlacklist, type BlacklistItem, type BlacklistResponse } from '@/services/blacklist';
 import { useModel, useRequest } from '@umijs/max';
-import { Button, Flex, message, Typography } from 'antd';
+import { Button, Flex, Typography } from 'antd';
 import { useMemo, useState } from 'react';
 import BlacklistTable from './components/BlacklistTable';
 import CreateBlackAddress from './components/CreateBlackAddress';
