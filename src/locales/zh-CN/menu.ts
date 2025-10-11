@@ -49,4 +49,8 @@ export default {
   'menu.editor.flow': '流程编辑器',
   'menu.editor.mind': '脑图编辑器',
   'menu.editor.koni': '拓扑编辑器',
+  'menu.Mint': '铸币',
+  'menu.Burn': '销毁',
+  'menu.Administrator': '管理员',
+  'menu.BlackList': '黑名单',
 };
