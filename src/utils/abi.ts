@@ -1,6 +1,6 @@
 const data: any = {
   development: {
-    address: '0x4EF723ee9Ac3F8692d703EE9e68b5434606403ba',
+    address: '0x3578B9549aa52EFf315249618F0a4f6143381801',
     abi: [
       {
         constant: true,

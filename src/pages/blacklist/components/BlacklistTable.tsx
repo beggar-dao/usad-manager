@@ -1,6 +1,6 @@
-import { DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import type { BlacklistItem } from '@/services/blacklist';
-import { Button, Card, Table } from 'antd';
+import { Button, Card, Tag, Table, Modal } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 
@@ -22,6 +22,23 @@ export default function BlacklistTable({
   onDelete,
   pagination 
 }: BlacklistTableProps) {
+  const handleDelete = (record: BlacklistItem) => {
+    Modal.confirm({
+      title: 'Confirm Delete',
+      icon: <ExclamationCircleOutlined />,
+      content: `Are you sure you want to delete the blacklist entry for address ${record.address}?`,
+      okText: 'Delete',
+      okType: 'danger',
+      okButtonProps: {
+        variant: 'filled'
+      },
+      cancelText: 'Cancel',
+      onOk: () => {
+        onDelete(record);
+      },
+    });
+  };
+
   const columns: ColumnsType<BlacklistItem> = [
     {
       title: 'Address',
@@ -33,12 +50,12 @@ export default function BlacklistTable({
       ),
     },
     {
-      title: 'Contract Address',
-      dataIndex: 'contractAddress',
-      key: 'contractAddress',
+      title: 'Reason',
+      dataIndex: 'reason',
+      key: 'reason',
       width: '30%',
-      render: (address: string) => (
-        <span style={{ fontFamily: 'monospace' }}>{address}</span>
+      render: (reason: string) => (
+        <Tag color="red">{reason}</Tag> 
       ),
     },
     {
@@ -46,14 +63,14 @@ export default function BlacklistTable({
       dataIndex: 'createTime',
       key: 'createTime',
       width: '20%',
-      render: (time: number) => time ? dayjs(time * 1000).format('YYYY-MM-DD HH:mm:ss') : '-',
+      render: (time: number) => time ? dayjs(time).format('YYYY-MM-DD HH:mm:ss') : '-',
     },
     {
       title: 'Operator',
       dataIndex: 'operatorAddress',
       key: 'operatorAddress',
       width: '15%',
-      render: (address: string) => address ? `${address.slice(0, 6)}...${address.slice(-4)}` : '-',
+      render: (address: string) => address,
     },
     {
       title: 'Action',
@@ -65,7 +82,7 @@ export default function BlacklistTable({
           danger
           icon={<DeleteOutlined />}
           size="small"
-          onClick={() => onDelete(record)}
+          onClick={() => handleDelete(record)}
           disabled={record.isDeleted === 1}
         />
       ),

@@ -24,16 +24,16 @@ export default [
     component: "./burn",
   },
   {
-    name: "Administrator",
-    icon: "user",
-    path: "/admin",
-    component: "./admin",
-  },
-  {
     name: "BlackList",
     icon: "stop",
     path: "/blacklist",
     component: "./blacklist",
+  },
+  {
+    name: "Administrator",
+    icon: "user",
+    path: "/admin",
+    component: "./admin",
   },
   {
     path: "/",

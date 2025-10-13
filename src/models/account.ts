@@ -176,7 +176,7 @@ export default function AccountModel() {
     );
   };
 
-  const handleAddBlacklist = (blacklistAddress: string, onSuccess?: () => void) => {
+  const handleAddBlacklist = (data: { address: string; reason: string }, onSuccess?: () => void) => {
     if (!isSelf) {
       message.error('No permission');
       return;
@@ -188,7 +188,7 @@ export default function AccountModel() {
         address: abiData.address,
         abi: abiData.abi,
         functionName: 'addBlackList',
-        args: [blacklistAddress as `0x${string}`],
+        args: [data.address as `0x${string}`],
       },
       {
         onSuccess: (txHash) => {
@@ -198,8 +198,9 @@ export default function AccountModel() {
               await addBlacklist({
                 contractAddress: abiData.address,
                 operatorAddress: address as string,
-                address: blacklistAddress,
+                address: data.address,
                 hash: txHash,
+                reason: data.reason,
               });
               message.success('Successfully added to blacklist');
               onSuccess?.();
@@ -220,7 +221,7 @@ export default function AccountModel() {
     );
   };
 
-  const handleRemoveBlacklist = (blacklistAddress: string, onSuccess?: () => void) => {
+  const handleRemoveBlacklist = (address: string, onSuccess?: () => void) => {
     if (!isSelf) {
       message.error('No permission');
       return;
@@ -231,7 +232,7 @@ export default function AccountModel() {
         address: abiData.address,
         abi: abiData.abi,
         functionName: 'removeBlackList',
-        args: [blacklistAddress as `0x${string}`],
+        args: [address as `0x${string}`],
       },
       {
         onSuccess: (txHash) => {
@@ -240,8 +241,8 @@ export default function AccountModel() {
             try {
               await deleteBlacklist({
                 contractAddress: abiData.address,
-                operatorAddress: address as string,
-                address: blacklistAddress,
+                operatorAddress: readContractsData?.[0]?.result?.toString(),
+                address: address,
                 hash: txHash,
               });
               message.success('Successfully removed from blacklist');

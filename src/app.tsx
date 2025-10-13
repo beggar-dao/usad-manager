@@ -74,6 +74,6 @@ export const layout: any = () => {
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const request: RequestConfig = {
-  baseURL: 'http://api.admin-beggar.vn-tools.net',
+  baseURL: 'https://api.thegbpc.com',
   ...errorConfig,
 };

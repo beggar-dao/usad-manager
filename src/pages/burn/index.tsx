@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Dashboard from "../dashboard";
 import { weiToEther } from "@/utils";
 
-export default function Mint() {
+export default function Burn() {
   const [form] = Form.useForm();
   const [disabled, setDisabled] = useState(true);
   const {

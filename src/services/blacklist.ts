@@ -32,6 +32,10 @@ export interface BlacklistItem {
    */
   address?: string;
   /**
+   * 原因
+   */
+  reason: string;
+  /**
    * 合约地址
    */
   contractAddress?: string;
@@ -98,15 +102,19 @@ export interface BlacklistParams {
   /**
    * 操作者地址
    */
-  operatorAddress: string;
+  operatorAddress?: string;
   /**
    * 黑名单地址
    */
-  address: string
+  address: string;
   /**
    * 操作 Hash
    */
-  hash: string
+  hash: string;
+  /**
+   * 原因
+   */
+  reason?: string;
 }
 
 export const addBlacklist = (params: BlacklistParams) => {
@@ -114,7 +122,7 @@ export const addBlacklist = (params: BlacklistParams) => {
     '/contract/blacklist',
     {
       method: 'post',
-      params,
+      data: params,
     },
   );
 };

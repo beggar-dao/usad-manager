@@ -63,7 +63,7 @@ export default function BlackList() {
     await changeNetWork(9200);
 
     // Call the account model function to add to blacklist
-    handleAddBlacklist(values.address, () => {
+    handleAddBlacklist(values, () => {
       setShowCreateForm(false);
       refresh();
     });
@@ -118,11 +118,7 @@ export default function BlackList() {
       )}
 
       {/* Statistics Cards */}
-      <StatisticsCards
-        totalCount={meta?.totalCount || 0}
-        pendingCount={0}
-        confirmedCount={filteredData.length}
-      />
+      <StatisticsCards totalCount={meta?.totalCount || 0}/>
 
       {/* Search and Action Bar */}
       <SearchBar
