@@ -2,11 +2,12 @@ name: Deploy Web Project
 
 on:
   push:
-    branches: ['main'] # 只在 main 分支推送时触发
+    branches: ['main', 'testing'] # 在 main 和 testing 分支推送时触发
   workflow_dispatch: # 允许手动触发
 
 env:
-  SERVER_DEPLOY_PATH: '/data/apps/nginx/www/usad-manager' # 服务器上的部署路径
+  MAIN_DEPLOY_PATH: '/data/apps/nginx/www/usad-manager'
+  TESTING_DEPLOY_PATH: '/data/apps/nginx/www/usad-manager-testing'
 
 jobs:
   build-and-deploy:
@@ -20,30 +21,44 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # 指定 Node 版本
+          node-version: '20'
 
-      # 3. 安装依赖并构建
+      # 3. 根据分支选择构建方式
       - name: Install and Build
         run: |
           npm install
-          npm run build
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            npm run build
+          elif [ "${{ github.ref }}" == "refs/heads/testing" ]; then
+            npm run build:testing
+          fi
 
-      # 4. 将 PEM 密钥写入文件（用于 SSH/SCP）
+      # 4. 设置部署路径变量
+      - name: Set deployment path
+        id: set-path
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "DEPLOY_PATH=${{ env.MAIN_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/testing" ]; then
+            echo "DEPLOY_PATH=${{ env.TESTING_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
+          fi
+
+      # 5. 将 PEM 密钥写入文件
       - name: Create SSH Key File
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy.pem
           chmod 600 ~/.ssh/deploy.pem
 
-      # 5. 上传 dist/ 到服务器
+      # 6. 上传 dist/ 到服务器
       - name: Upload dist via SCP
         run: |
           scp -o StrictHostKeyChecking=no \
               -i ~/.ssh/deploy.pem \
               -r ./dist/* \
-              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$SERVER_DEPLOY_PATH/
+              ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ steps.set-path.outputs.DEPLOY_PATH }}/
 
-      # 6. 重启服务
+      # 7. 重启服务
       - name: Run Remote Commands
         run: |
           ssh -o StrictHostKeyChecking=no \
@@ -53,18 +68,20 @@ jobs:
           sudo docker compose restart
           EOF
 
-      # 7. 成功后发送 Lark 通知
+      # 8. 成功后发送 Lark 通知
       - name: Notify Lark on Success
-        if: success() # 仅在成功时触发
+        if: success()
         uses: actions/github-script@v7
         env:
           LARK_WEBHOOK: ${{ secrets.LARK_WEBHOOK_URL }}
         with:
           script: |
+            const branch = "${{ github.ref }}".replace('refs/heads/', '');
+            const environment = branch === 'main' ? '生产环境' : '测试环境';
             const message = {
               msg_type: "text",
               content: {
-                text: "✅ 部署成功！\n- 项目: ${{ github.repository }}\n- 分支: ${{ github.ref }}\n- 触发者: ${{ github.actor }}\n- 详情: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                text: `✅ ${environment}部署成功！\n- 项目: ${{ github.repository }}\n- 分支: ${branch}\n- 触发者: ${{ github.actor }}\n- 详情: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`
               }
             };
             await fetch(process.env.LARK_WEBHOOK, {
@@ -73,17 +90,20 @@ jobs:
               headers: { 'Content-Type': 'application/json' }
             });
 
+      # 9. 失败时发送 Lark 通知
       - name: Notify Lark on Failure
-        if: failure() # 仅在失败时触发
+        if: failure()
         uses: actions/github-script@v7
         env:
           LARK_WEBHOOK: ${{ secrets.LARK_WEBHOOK_URL }}
         with:
           script: |
+            const branch = "${{ github.ref }}".replace('refs/heads/', '');
+            const environment = branch === 'main' ? '生产环境' : '测试环境';
             const message = {
               msg_type: "text",
               content: {
-                text: "❌ 部署失败！\n- 项目: ${{ github.repository }}\n- 分支: ${{ github.ref }}\n- 触发者: ${{ github.actor }}\n- 日志: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                text: `❌ ${environment}部署失败！\n- 项目: ${{ github.repository }}\n- 分支: ${branch}\n- 触发者: ${{ github.actor }}\n- 日志: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`
               }
             };
             await fetch(process.env.LARK_WEBHOOK, {
