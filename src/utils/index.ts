@@ -25,6 +25,7 @@ export function copyText(text: string): Promise<boolean> {
     document.body.removeChild(textarea);
     return Promise.resolve(success);
   } catch (error) {
+    console.error('Copy failed', error);
     return Promise.resolve(false);
   }
 }
@@ -60,11 +61,11 @@ export function maskString(
 }
 
 // 将wei转换为ether
-export function weiToEther(wei: any) {
+export function weiToEther(wei: ethers.BigNumberish) {
   return (wei && ethers.formatEther(`${wei || ''}`)) || '';
 }
 
 // 将ether转换为wei 大单位转小单位
-export function etherToWei(ether: any) {
+export function etherToWei(ether: string) {
   return (ether && ethers.parseEther(`${ether || ''}`)) || '';
 }

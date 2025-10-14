@@ -1,5 +1,3 @@
-﻿import path from "path";
-
 /**
  * @name umi 的路由配置
  * @description 只支持 path,component,routes,redirect,wrappers,name,icon 的配置
@@ -13,12 +11,6 @@
  * @doc https://umijs.org/docs/guides/routes
  */
 export default [
-  // {
-  //   name: "dashboard",
-  //   icon: "dashboard",
-  //   path: "/dashboard",
-  //   component: "./dashboard",
-  // },
   {
     name: "Mint",
     icon: "table",
@@ -32,12 +24,17 @@ export default [
     component: "./burn",
   },
   {
+    name: "BlackList",
+    icon: "stop",
+    path: "/blacklist",
+    component: "./blacklist",
+  },
+  {
     name: "Administrator",
     icon: "user",
     path: "/admin",
     component: "./admin",
   },
-
   {
     path: "/",
     redirect: "/mint",

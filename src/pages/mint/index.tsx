@@ -10,16 +10,17 @@ export default function Mint() {
     useModel("account");
 
   const values = Form.useWatch([], form);
+
   useEffect(() => {
     form
       .validateFields({ validateOnly: true })
       .then(() => setDisabled(false))
       .catch(() => setDisabled(true));
   }, [form, values]);
+
   const onFinish = async (values: any) => {
     if (status === "connected") {
       await changeNetWork(9200);
-      console.log("Success:", values);
       handleMint(values.amount);
       return;
     }
@@ -42,6 +43,7 @@ export default function Mint() {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-label="Plus"
               className="lucide lucide-plus w-6 h-6 text-green-600"
             >
               <path d="M5 12h14"></path>

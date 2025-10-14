@@ -3,6 +3,7 @@ import {
   useChainModal,
   useConnectModal,
 } from '@rainbow-me/rainbowkit';
+import { addBlacklist, deleteBlacklist } from '@/services/blacklist';
 import { useModel } from '@umijs/max';
 import { message } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
@@ -44,15 +45,14 @@ export default function AccountModel() {
         },
       ],
     });
-  console.log(readContractsData, address);
+
   const isSelf = useMemo(() => {
     return (
-      (readContractsData &&
-        readContractsData[0]?.result?.toString().toLowerCase()) ===
-      (address && address.toString().toLowerCase())
+      (readContractsData?.[0]?.result?.toString().toLowerCase()) ===
+      (address?.toString().toLowerCase())
     );
   }, [readContractsData, address]);
-  console.log(isSelf);
+
   const [hash, setHash] = useState<`0x${string}` | undefined>(undefined);
   const { writeContract } = useWriteContract();
   const [callbackFunc, setCallbackFunc] = useState(
@@ -65,8 +65,8 @@ export default function AccountModel() {
   const { status: transactionStatus } = useWaitForTransactionReceipt({
     hash,
   });
+
   useEffect(() => {
-    console.log('transactionStatus', transactionStatus);
     if (transactionStatus === 'success') {
       callbackFunc();
     } else if (transactionStatus === 'error') {
@@ -76,27 +76,27 @@ export default function AccountModel() {
       message.error('Failed');
     }
   }, [transactionStatus]);
+  
   const changeNetWork = async (chainId: number) => {
     await switchChain({ chainId });
   };
 
-  const handleMint = (account: number) => {
-    console.log(etherToWei(account), 'etherToWei(account)');
+  const handleMint = (amount: string) => {
     if (!isSelf) {
       message.error('No permission');
-      return false;
+      return;
     }
+
     setLoading(true);
     writeContract(
       {
         address: abiData.address,
         abi: abiData.abi,
         functionName: 'issue',
-        args: [etherToWei(account)],
+        args: [etherToWei(amount)],
       },
       {
         onSuccess: (data) => {
-          console.log(data, 'handleMint');
           setHash(data);
           setCallbackFunc(() => () => {
             message.success('Mint success');
@@ -105,26 +105,27 @@ export default function AccountModel() {
             setCallbackFunc(() => () => {});
           });
         },
-        onError: (error) => {
+        onError: (_error) => {
           setLoading(false);
-          console.log(error);
           message.error('Failed');
         },
       },
     );
   };
-  const handleRedeem = (account: number) => {
+
+  const handleRedeem = (amount: string) => {
     if (!isSelf) {
       message.error('No permission');
-      return false;
+      return;
     }
+
     setLoading(true);
     writeContract(
       {
         address: abiData.address,
         abi: abiData.abi,
         functionName: 'redeem',
-        args: [etherToWei(account)],
+        args: [etherToWei(amount)],
       },
       {
         onSuccess: (data) => {
@@ -138,16 +139,16 @@ export default function AccountModel() {
         },
         onError: (error) => {
           setLoading(false);
-          console.log(error);
           message.error(error.message);
         },
       },
     );
   };
+
   const handleTransferOwnership = (address: string) => {
     if (!isSelf) {
       message.error('No permission');
-      return false;
+      return;
     }
     setLoading(true);
     writeContract(
@@ -169,17 +170,107 @@ export default function AccountModel() {
         },
         onError: (error) => {
           setLoading(false);
-          console.log(error);
           message.error(error.message);
         },
       },
     );
   };
+
+  const handleAddBlacklist = (data: { address: string; reason: string }, onSuccess?: () => void) => {
+    if (!isSelf) {
+      message.error('No permission');
+      return;
+    }
+
+    setLoading(true);
+    writeContract(
+      {
+        address: abiData.address,
+        abi: abiData.abi,
+        functionName: 'addBlackList',
+        args: [data.address as `0x${string}`],
+      },
+      {
+        onSuccess: (txHash) => {
+          setHash(txHash);
+          setCallbackFunc(() => async () => {
+            try {
+              await addBlacklist({
+                contractAddress: abiData.address,
+                operatorAddress: address as string,
+                address: data.address,
+                hash: txHash,
+                reason: data.reason,
+              });
+              message.success('Successfully added to blacklist');
+              onSuccess?.();
+            } catch (error) {
+              console.error('Failed to save to database:', error);
+              message.error('Transaction succeeded but failed to save to database');
+            } finally {
+              setLoading(false);
+              setCallbackFunc(() => () => {});
+            }
+          });
+        },
+        onError: (error) => {
+          setLoading(false);
+          message.error(error.message || 'Failed to add to blacklist');
+        },
+      },
+    );
+  };
+
+  const handleRemoveBlacklist = (address: string, onSuccess?: () => void) => {
+    if (!isSelf) {
+      message.error('No permission');
+      return;
+    }
+    setLoading(true);
+    writeContract(
+      {
+        address: abiData.address,
+        abi: abiData.abi,
+        functionName: 'removeBlackList',
+        args: [address as `0x${string}`],
+      },
+      {
+        onSuccess: (txHash) => {
+          setHash(txHash);
+          setCallbackFunc(() => async () => {
+            try {
+              await deleteBlacklist({
+                contractAddress: abiData.address,
+                operatorAddress: readContractsData?.[0]?.result?.toString(),
+                address: address,
+                hash: txHash,
+              });
+              message.success('Successfully removed from blacklist');
+              onSuccess?.();
+            } catch (error) {
+              console.error('Failed to update database:', error);
+              message.error('Transaction succeeded but failed to update database');
+            } finally {
+              setLoading(false);
+              setCallbackFunc(() => () => {});
+            }
+          });
+        },
+        onError: (error) => {
+          setLoading(false);
+          message.error(error.message || 'Failed to remove from blacklist');
+        },
+      },
+    );
+  };
+  
   return {
     readContractsData,
     handleRedeem,
     handleMint,
     handleTransferOwnership,
+    handleAddBlacklist,
+    handleRemoveBlacklist,
     status,
     address,
     chainId,

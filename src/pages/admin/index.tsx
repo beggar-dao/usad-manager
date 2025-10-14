@@ -1,9 +1,8 @@
-import { PageContainer } from "@ant-design/pro-components";
 import { history, useModel } from "@umijs/max";
-import { Button, Card, Form, Input, InputNumber } from "antd";
+import { Button, Card, Form, Input } from "antd";
 import { useEffect, useState } from "react";
 import Dashboard from "../dashboard";
-import { maskString, weiToEther } from "@/utils";
+import { maskString } from "@/utils";
 import CopyComponent from "@/components/CopyComponent";
 
 export default function Mint() {
@@ -17,12 +16,14 @@ export default function Mint() {
     handleTransferOwnership,
   } = useModel("account");
   const values = Form.useWatch([], form);
+
   useEffect(() => {
     form
       .validateFields({ validateOnly: true })
       .then(() => setDisabled(false))
       .catch(() => setDisabled(true));
   }, [form, values]);
+
   const onFinish = async (values: any) => {
     if (status === "connected") {
       await changeNetWork(9200);
@@ -49,6 +50,7 @@ export default function Mint() {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-label="Shield"
               className="lucide lucide-shield w-6 h-6 text-blue-600"
             >
               <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
@@ -77,6 +79,7 @@ export default function Mint() {
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
+                  aria-label="User Cog"
                   className="lucide lucide-user-cog w-5 h-5 text-white"
                 >
                   <circle cx="18" cy="15" r="3"></circle>
@@ -97,20 +100,14 @@ export default function Mint() {
                   Administrator Address
                 </p>
                 <p className="font-mono text-lg text-blue-900 font-semibold">
-                  {maskString(
-                    readContractsData && (readContractsData[0].result as string)
-                  )}
+                  {maskString(readContractsData?.[0].result as string)}
                 </p>
                 <p className="text-xs text-blue-600 mt-1">
                   Full access to all contract functions
                 </p>
               </div>
             </div>
-            <CopyComponent
-              text={
-                readContractsData && (readContractsData[0].result as string)
-              }
-            />
+            <CopyComponent text={readContractsData?.[0].result as string} />
           </div>
         </div>
         <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -132,7 +129,7 @@ export default function Mint() {
             <div className="text-lg mb-1">🔥</div>
             <p className="text-xs text-gray-600 font-medium">Burn Tokens</p>
           </div>
-          <div className="bg-gray-50 rounded-lg p-3 text-center">
+          <div className="bg-gray-50 cursor-pointer rounded-lg p-3 text-center" onClick={() => history.push("/blacklist")}>
             <div className="text-lg mb-1">🛡️</div>
             <p className="text-xs text-gray-600 font-medium">
               Manage Blacklist
@@ -157,6 +154,7 @@ export default function Mint() {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-label="Key"
               className="lucide lucide-key w-6 h-6 text-purple-600"
             >
               <circle cx="7.5" cy="15.5" r="5.5"></circle>
@@ -185,7 +183,8 @@ export default function Mint() {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
-              className="lucide lucide-alert-triangle w-6 h-6 text-red-600 flex-shrink-0 mt-0.5"
+              aria-label="Alert Triangle"
+              className="lucide lucide-alert-triangle w-6 h-6 text-red-600 shrink-0 mt-0.5"
             >
               <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
               <path d="M12 9v4"></path>

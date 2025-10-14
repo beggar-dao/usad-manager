@@ -1,48 +1,49 @@
-import { LinkOutlined } from "@ant-design/icons";
-import type { RequestConfig } from "@umijs/max";
-import { Link, useModel } from "@umijs/max";
-import defaultSettings from "../config/defaultSettings";
-import { errorConfig } from "./requestErrorConfig";
-import "@ant-design/v5-patch-for-react-19";
-import RainbowWallet from "./components/RainbowWallet";
-import CustomConnectButton from "./components/CustomerConnect";
-import { Spin } from "antd";
+import { LinkOutlined } from '@ant-design/icons';
+import type { RequestConfig } from '@umijs/max';
+import { Link, useModel } from '@umijs/max';
+import defaultSettings from '../config/defaultSettings';
+import { errorConfig } from './requestErrorConfig';
+import '@ant-design/v5-patch-for-react-19';
+import { Spin } from 'antd';
+import CustomConnectButton from './components/CustomConnectButton';
+import RainbowWallet from './components/RainbowWallet';
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = process.env.NODE_ENV === 'development';
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
 
 export function rootContainer(container: React.ReactNode) {
   return <RainbowWallet>{container}</RainbowWallet>;
 }
+
 export const layout: any = () => {
-  const { loading } = useModel("global");
+  const { loading } = useModel('global');
   const initialState = {
     settings: {
       ...defaultSettings,
     },
   };
   return {
-    actionsRender: () => [<CustomConnectButton />],
+    actionsRender: () => [<CustomConnectButton key="connectButton" />],
     onPageChange: () => {},
     bgLayoutImgList: [
       {
-        src: "https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/D2LWSqNny4sAAAAAAAAAAAAAFl94AQBr",
+        src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/D2LWSqNny4sAAAAAAAAAAAAAFl94AQBr',
         left: 85,
         bottom: 100,
-        height: "303px",
+        height: '303px',
       },
       {
-        src: "https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/C2TWRpJpiC0AAAAAAAAAAAAAFl94AQBr",
+        src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/C2TWRpJpiC0AAAAAAAAAAAAAFl94AQBr',
         bottom: -68,
         right: -45,
-        height: "303px",
+        height: '303px',
       },
       {
-        src: "https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/F6vSTbj8KpYAAAAAAAAAAAAAFl94AQBr",
+        src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/F6vSTbj8KpYAAAAAAAAAAAAAFl94AQBr',
         bottom: 0,
         left: 0,
-        width: "331px",
+        width: '331px',
       },
     ],
     links: isDev
@@ -55,7 +56,7 @@ export const layout: any = () => {
       : [],
     menuHeaderRender: undefined,
 
-    childrenRender: (children) => {
+    childrenRender: (children: React.ReactNode) => {
       return (
         <>
           <Spin spinning={loading} fullscreen />
@@ -73,6 +74,6 @@ export const layout: any = () => {
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const request: RequestConfig = {
-  baseURL: "http://api.admin-beggar.vn-tools.net",
+  baseURL: 'https://api.thegbpc.com',
   ...errorConfig,
 };

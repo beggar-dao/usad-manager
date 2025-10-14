@@ -1,23 +1,21 @@
 // https://umijs.org/config/
 
-import { join } from 'node:path';
-import { defineConfig } from '@umijs/max';
-import defaultSettings from './defaultSettings';
+import { join } from "node:path";
+import { defineConfig } from "@umijs/max";
+import defaultSettings from "./defaultSettings";
 
-import routes from './routes';
-
-const { REACT_APP_ENV = 'dev' } = process.env;
+import routes from "./routes";
 
 /**
  * @name 使用公共路径
  * @description 部署时的路径，如果部署在非根目录下，需要配置这个变量
  * @doc https://umijs.org/docs/api/config#publicpath
  */
-const PUBLIC_PATH: string = '/';
+const PUBLIC_PATH: string = "/";
 
 export default defineConfig({
   alias: {
-    '@base-org/account': '@/utils/compatible-account',
+    "@base-org/account": "@/utils/compatible-account",
   },
   /**
    * @name 开启 hash 模式
@@ -85,7 +83,7 @@ export default defineConfig({
    * @name layout 插件
    * @doc https://umijs.org/docs/max/layout-menu
    */
-  title: 'usad-manager',
+  title: "usad-manager",
   layout: {
     locale: true,
     ...defaultSettings,
@@ -96,19 +94,18 @@ export default defineConfig({
    * @doc https://umijs.org/docs/max/moment2dayjs
    */
   moment2dayjs: {
-    preset: 'antd',
-    plugins: ['duration'],
+    preset: "antd",
+    plugins: ["duration"],
   },
   /**
    * @name 国际化插件
    * @doc https://umijs.org/docs/max/i18n
    */
   locale: {
-    // default zh-CN
-    default: 'en-US',
+    default: "en-US",
     antd: true,
     // default true, when it is true, will use `navigator.language` overwrite default
-    baseNavigator: true,
+    baseNavigator: false,
   },
   /**
    * @name antd 插件
@@ -121,7 +118,7 @@ export default defineConfig({
       theme: {
         cssVar: true,
         token: {
-          fontFamily: 'AlibabaSans, sans-serif',
+          fontFamily: "AlibabaSans, sans-serif",
         },
       },
     },
@@ -144,11 +141,11 @@ export default defineConfig({
    */
   headScripts: [
     // 解决首次加载时白屏的问题
-    { src: join(PUBLIC_PATH, 'scripts/loading.js'), async: true },
+    { src: join(PUBLIC_PATH, "scripts/loading.js"), async: true },
   ],
 
   //================ pro 插件配置 =================
-  presets: ['umi-presets-pro'],
+  presets: ["umi-presets-pro"],
   /**
    * @name openAPI 插件的配置
    * @description 基于 openapi 的规范生成serve 和mock，能减少很多样板代码
@@ -170,7 +167,7 @@ export default defineConfig({
   //   },
   // ],
   mock: {
-    include: ['mock/**/*', 'src/pages/**/_mock.ts'],
+    include: ["mock/**/*", "src/pages/**/_mock.ts"],
   },
   /**
    * @name 是否开启 mako

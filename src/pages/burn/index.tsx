@@ -1,11 +1,10 @@
-import { PageContainer } from "@ant-design/pro-components";
 import { useModel } from "@umijs/max";
 import { Button, Card, Form, InputNumber } from "antd";
 import { useEffect, useState } from "react";
 import Dashboard from "../dashboard";
 import { weiToEther } from "@/utils";
 
-export default function Mint() {
+export default function Burn() {
   const [form] = Form.useForm();
   const [disabled, setDisabled] = useState(true);
   const {
@@ -16,16 +15,17 @@ export default function Mint() {
     handleRedeem,
   } = useModel("account");
   const values = Form.useWatch([], form);
+
   useEffect(() => {
     form
       .validateFields({ validateOnly: true })
       .then(() => setDisabled(false))
       .catch(() => setDisabled(true));
   }, [form, values]);
+
   const onFinish = async (values: any) => {
     if (status === "connected") {
       await changeNetWork(9200);
-      console.log("Success:", values);
       handleRedeem(values.amount);
       return;
     }
@@ -48,6 +48,7 @@ export default function Mint() {
               stroke-width="2"
               stroke-linecap="round"
               stroke-linejoin="round"
+              aria-label="Minus"
               className="lucide lucide-minus w-6 h-6 text-red-600"
             >
               <path d="M5 12h14"></path>
@@ -69,7 +70,7 @@ export default function Mint() {
               {
                 validator: (_, value) => {
                   const maxBalance = readContractsData
-                    ? Number(weiToEther(readContractsData[2].result))
+                    ? Number(weiToEther(readContractsData?.[2]?.result as string))
                     : 0;
                   if (value > maxBalance) {
                     return Promise.reject(
@@ -132,7 +133,7 @@ export default function Mint() {
             </svg>
             <span>
               Available balance:{" "}
-              {readContractsData && weiToEther(readContractsData[2].result)}{" "}
+              {readContractsData && weiToEther(readContractsData?.[2]?.result as string)}{" "}
               USAD
             </span>
           </div>
