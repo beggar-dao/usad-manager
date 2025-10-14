@@ -2,12 +2,12 @@ name: Deploy Web Project
 
 on:
   push:
-    branches: ['main', 'testing'] # 在 main 和 testing 分支推送时触发
+    branches: ['main', 'test'] # 在 main 和 test 分支推送时触发
   workflow_dispatch: # 允许手动触发
 
 env:
   MAIN_DEPLOY_PATH: '/data/apps/nginx/www/usad-manager'
-  TESTING_DEPLOY_PATH: '/data/apps/nginx/www/usad-manager-testing'
+  TEST_DEPLOY_PATH: '/data/apps/nginx/www/usad-manager-test'
 
 jobs:
   build-and-deploy:
@@ -29,7 +29,7 @@ jobs:
           npm install
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             npm run build
-          elif [ "${{ github.ref }}" == "refs/heads/testing" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/test" ]; then
             npm run build:test
           fi
 
@@ -39,8 +39,8 @@ jobs:
         run: |
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             echo "DEPLOY_PATH=${{ env.MAIN_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
-          elif [ "${{ github.ref }}" == "refs/heads/testing" ]; then
-            echo "DEPLOY_PATH=${{ env.TESTING_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
+          elif [ "${{ github.ref }}" == "refs/heads/test" ]; then
+            echo "DEPLOY_PATH=${{ env.TEST_DEPLOY_PATH }}" >> $GITHUB_OUTPUT
           fi
 
       # 5. 将 PEM 密钥写入文件
