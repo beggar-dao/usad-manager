@@ -787,6 +787,6 @@ const data: any = {
   },
 };
 
-export default process.env.NODE_ENV === 'production'
-  ? data.production
-  : data.development;
+export default process.env.UMI_APP_APP_ENV === 'development'
+  ? data.development
+  : data.production;
