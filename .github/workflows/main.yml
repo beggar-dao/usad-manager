@@ -30,7 +30,7 @@ jobs:
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
             npm run build
           elif [ "${{ github.ref }}" == "refs/heads/testing" ]; then
-            npm run build:testing
+            npm run build:test
           fi
 
       # 4. 设置部署路径变量
