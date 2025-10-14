@@ -179,6 +179,9 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
   requestRecord: {},
   exportStatic: {},
   tailwindcss: {},
+  define: {
+    'process.env.UMI_APP_APP_ENV': process.env.UMI_APP_APP_ENV,
+  },
 });
 
 export default config;
