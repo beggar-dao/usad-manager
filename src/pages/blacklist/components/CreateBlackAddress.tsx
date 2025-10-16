@@ -1,5 +1,15 @@
 import { WarningOutlined } from '@ant-design/icons';
-import { Button, Card, Col, Form, Input, Row, Select, Space, Typography } from 'antd';
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Typography,
+} from 'antd';
 
 const { Title } = Typography;
 
@@ -46,6 +56,20 @@ export default function CreateBlackAddress({
                     pattern: /^0x[a-fA-F0-9]{40}$/,
                     message: 'Please enter a valid Ethereum address',
                   },
+                  {
+                    validator: (_, value) => {
+                      if (
+                        value &&
+                        value.toLowerCase() ===
+                          '0x0000000000000000000000000000000000000000'
+                      ) {
+                        return Promise.reject(
+                          new Error('Zero address is not allowed'),
+                        );
+                      }
+                      return Promise.resolve();
+                    },
+                  },
                 ]}
               >
                 <Input
@@ -64,7 +88,10 @@ export default function CreateBlackAddress({
                   placeholder="Select reason"
                   size="large"
                   options={[
-                    { value: 'Suspicious wallet address', label: 'Suspicious wallet address' },
+                    {
+                      value: 'Suspicious wallet address',
+                      label: 'Suspicious wallet address',
+                    },
                     { value: 'Suspected fraud', label: 'Suspected fraud' },
                     { value: 'Confirmed scam', label: 'Confirmed scam' },
                     { value: 'Money laundering', label: 'Money laundering' },
@@ -81,7 +108,12 @@ export default function CreateBlackAddress({
               <Button type="primary" htmlType="submit" size="large">
                 Confirm
               </Button>
-              <Button color="default" variant="filled" onClick={onCancel} size="large">
+              <Button
+                color="default"
+                variant="filled"
+                onClick={onCancel}
+                size="large"
+              >
                 Cancel
               </Button>
             </Space>
