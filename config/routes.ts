@@ -12,36 +12,133 @@
  */
 export default [
   {
-    name: "Mint",
-    icon: "table",
-    path: "/mint",
-    component: "./mint",
-  },
-  {
-    name: "Burn",
-    icon: "Signature",
-    path: "/burn",
-    component: "./burn",
-  },
-  {
-    name: "BlackList",
-    icon: "stop",
-    path: "/blacklist",
-    component: "./blacklist",
-  },
-  {
-    name: "Administrator",
-    icon: "user",
-    path: "/admin",
-    component: "./admin",
-  },
-  {
-    path: "/",
-    redirect: "/mint",
-  },
-  {
-    path: "*",
+    path: '/user',
     layout: false,
-    component: "./404",
+    routes: [
+      {
+        name: 'login',
+        path: '/user/login',
+        component: './user/login',
+      },
+    ],
+  },
+  {
+    name: 'User Management',
+    icon: 'user',
+    path: '/user-management',
+    routes: [
+      {
+        path: '/user-management',
+        redirect: '/user-management/user-list',
+      },
+      {
+        name: 'User List',
+        path: '/user-management/user-list',
+        component: './user-management/UserList',
+      },
+      {
+        name: 'User Profile',
+        path: '/user-management/user-profile/:userId',
+        component: './user-management/UserProfile',
+        hideInMenu: true,
+      },
+    ],
+  },
+  {
+    name: 'KYC/KYB',
+    icon: 'table',
+    path: '/list',
+    routes: [
+      {
+        path: '/list',
+        redirect: '/list/kyc',
+      },
+      {
+        name: 'Individual KYC',
+        path: '/list/kyc',
+        component: './kyc-list',
+      },
+      {
+        name: 'Corporate KYB',
+        path: '/list/kyb',
+        component: './kyb-list',
+      },
+    ],
+  },
+  {
+    name: 'USAD Contract',
+    icon: 'cluster',
+    path: '/contract',
+    routes: [
+      {
+        path: '/contract',
+        redirect: '/contract/mint',
+      },
+      {
+        name: 'Mint',
+        path: '/contract/mint',
+        component: './mint',
+      },
+      {
+        name: 'Burn',
+        path: '/contract/burn',
+        component: './burn',
+      },
+      {
+        name: 'Admin',
+        path: '/contract/admin',
+        component: './admin',
+      },
+    ],
+  },
+  {
+    path: '/payment',
+    name: 'Payments',
+    icon: 'bank',
+    component: './payment',
+  },
+
+  {
+    name: 'Deposits',
+    icon: 'cluster',
+    path: '/deposits',
+    routes: [
+      {
+        path: '/deposits',
+        redirect: '/deposits/crypto',
+      },
+      {
+        name: 'Crypto Deposits',
+        path: '/deposits/crypto',
+        component: './deposits/crypto',
+      },
+
+      {
+        name: 'Fiat Deposits',
+        path: '/deposits/fiat',
+        component: './deposits/fiat',
+      },
+    ],
+  },
+  {
+    name: 'Fiat Withdrawals',
+    path: '/withdrawal',
+    icon: 'creditCard',
+    component: './deposits/withdrawal',
+  },
+  {
+    name: 'Transfers',
+    path: '/transfer',
+    icon: 'dollar',
+    component: './deposits/transfer',
+  },
+  {
+    path: '/',
+    redirect: '/user-management',
+  },
+  {
+    path: '*',
+    layout: false,
+    component: './404',
   },
 ];

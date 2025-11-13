@@ -1,0 +1,15 @@
+export { default as AccountInfoMainTab } from './AccountInfoMainTab';
+export { default as AccountInfoTab } from './AccountInfoTab';
+export { default as CorporateDocuments } from './CorporateDocuments';
+export { default as CryptoDeposits } from './CryptoDeposits';
+export { default as CryptoWithdrawals } from './CryptoWithdrawals';
+export { default as DepositsTab } from './DepositsTab';
+export { default as DocumentsTab } from './DocumentsTab';
+export { default as FiatDeposits } from './FiatDeposits';
+export { default as FiatWithdrawals } from './FiatWithdrawals';
+export { default as IndividualDocuments } from './IndividualDocuments';
+export { default as LoginHistoryTab } from './LoginHistoryTab';
+export { default as PaymentMethodsTab } from './PaymentMethodsTab';
+export { default as WalletsTab } from './WalletsTab';
+export { default as WhitelistAddressTab } from './WhitelistAddressTab';
+export { default as WithdrawalsTab } from './WithdrawalsTab';
