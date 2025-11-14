@@ -7,6 +7,7 @@ import '@ant-design/v5-patch-for-react-19';
 import { Spin } from 'antd';
 import CustomConnectButton from './components/CustomConnectButton';
 import RainbowWallet from './components/RainbowWallet';
+import { AvatarDropdown, AvatarName } from './components/RightContent/AvatarDropdown';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -16,16 +17,61 @@ export function rootContainer(container: React.ReactNode) {
   return <RainbowWallet>{container}</RainbowWallet>;
 }
 
-export const layout: any = () => {
-  const { loading } = useModel('global');
-  const initialState = {
-    settings: {
-      ...defaultSettings,
-    },
-  };
+// 定义用户信息类型
+interface UserInfo {
+  name?: string;
+  avatar?: string;
+  // 添加其他用户信息字段
+  [key: string]: any;
+}
+
+// 定义初始状态类型
+interface InitialState {
+  currentUser?: UserInfo;
+  settings?: typeof defaultSettings;
+  [key: string]: any;
+}
+
+// 初始化用户状态
+let userInfo: UserInfo = {};
+if (typeof window !== 'undefined') {
+  const userInfoStr = localStorage.getItem('userInfo');
+  if (userInfoStr) {
+    try {
+      userInfo = JSON.parse(userInfoStr);
+    } catch (e) {
+      console.error('Failed to parse userInfo from localStorage', e);
+    }
+  }
+}
+
+export async function getInitialState(): Promise<InitialState> {
   return {
-    actionsRender: () => [<CustomConnectButton key="connectButton" />],
-    onPageChange: () => {},
+    currentUser: userInfo,
+    settings: defaultSettings,
+  };
+}
+
+export const layout: any = () => {
+  const { initialState, loading } = useModel('@@initialState');
+  
+  const isContract = location.pathname.startsWith("/contract")
+
+  return {
+    actionsRender: () => [
+      isContract ? (
+        <CustomConnectButton />
+      ) : null,
+    ],
+    avatarProps: isContract
+      ? null
+      : {
+        title: <AvatarName />,
+        render: (_: any, avatarChildren: any) => {
+          return <AvatarDropdown>{avatarChildren}</AvatarDropdown>;
+        },
+      },
+    onPageChange: () => { },
     bgLayoutImgList: [
       {
         src: 'https://mdn.alipayobjects.com/yuyan_qk0oxh/afts/img/D2LWSqNny4sAAAAAAAAAAAAAFl94AQBr',
@@ -48,11 +94,11 @@ export const layout: any = () => {
     ],
     links: isDev
       ? [
-          <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
-            <LinkOutlined />
-            <span>OpenAPI 文档</span>
-          </Link>,
-        ]
+        <Link key="openapi" to="/umi/plugin/openapi" target="_blank">
+          <LinkOutlined />
+          <span>OpenAPI 文档</span>
+        </Link>,
+      ]
       : [],
     menuHeaderRender: undefined,
 
@@ -74,6 +120,6 @@ export const layout: any = () => {
  * @doc https://umijs.org/docs/max/request#配置
  */
 export const request: RequestConfig = {
-  baseURL: 'https://api.thegbpc.com',
+  baseURL: 'https://api.admin-usad.vn.com',
   ...errorConfig,
 };

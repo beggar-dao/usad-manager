@@ -83,7 +83,7 @@ const config: ReturnType<typeof defineConfig> = defineConfig({
    * @name layout 插件
    * @doc https://umijs.org/docs/max/layout-menu
    */
-  title: 'usad-manager',
+  title: 'USAD Manager',
   layout: {
     locale: true,
     ...defaultSettings,
