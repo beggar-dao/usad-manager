@@ -14,6 +14,7 @@ export default function Burn() {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const {
     status,
+    isSelf,
     changeNetWork,
     openConnectModal,
     readContractsData,
@@ -35,7 +36,7 @@ export default function Burn() {
           const isAllowed = response.data.list.some(
             (addr) => addr.address.toLowerCase() === address.toLowerCase()
           );
-          setIsWhitelisted(isAllowed);
+          setIsWhitelisted(isAllowed || isSelf);
         }
       } catch (error) {
         console.error("Failed to check whitelist:", error);
@@ -43,7 +44,7 @@ export default function Burn() {
       }
     };
     checkWhitelist();
-  }, [address]);
+  }, [address, isSelf]);
 
   useEffect(() => {
     form
@@ -52,27 +53,15 @@ export default function Burn() {
       .catch(() => setDisabled(true));
   }, [form, values]);
 
-  const onFinish = async (values: any) => {
-    if (status !== "connected") {
-      openConnectModal?.();
-      return;
-    }
-
-    if (!isWhitelisted) {
-      message.error("Your address is not whitelisted for burn operations");
-      return;
-    }
-
-    setLoading(true);
+  const handleBurnSuccess = async (hash: string) => {
     try {
-      // Get transaction hash from handleRedeem or use a placeholder
-      await changeNetWork(9200);
+      if (!address) return;
 
       // Call the burn API
       const burnResponse = await burnTokens({
-        operatorAddress: address!,
-        amount: values.amount.toString(),
-        hash: "", // This will be set after transaction is confirmed
+        address,
+        value: values.amount.toString(),
+        hash, // This will be set after transaction is confirmed
       });
 
       if (burnResponse) {
@@ -87,6 +76,25 @@ export default function Burn() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const onFinish = async (values: any) => {
+    if (status !== "connected") {
+      openConnectModal?.();
+      return;
+    }
+
+    if (!isWhitelisted) {
+      message.error("Your address is not whitelisted for burn operations");
+      return;
+    }
+
+    setLoading(true);
+
+    // Get transaction hash from handleRedeem or use a placeholder
+    await changeNetWork(9200);
+
+    handleRedeem(values.amount, handleBurnSuccess);
   };
 
   return (
@@ -138,7 +146,9 @@ export default function Burn() {
               {
                 validator: (_, value) => {
                   const maxBalance = readContractsData
-                    ? Number(weiToEther(readContractsData?.[2]?.result as string))
+                    ? Number(
+                        weiToEther(readContractsData?.[2]?.result as string)
+                      )
                     : 0;
                   if (value > maxBalance) {
                     return Promise.reject(
@@ -201,7 +211,8 @@ export default function Burn() {
             </svg>
             <span>
               Available balance:{" "}
-              {readContractsData && weiToEther(readContractsData?.[2]?.result as string)}{" "}
+              {readContractsData &&
+                weiToEther(readContractsData?.[2]?.result as string)}{" "}
               USAD
             </span>
           </div>

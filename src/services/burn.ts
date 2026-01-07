@@ -22,11 +22,11 @@ export interface BurnParams {
   /**
    * 操作者地址
    */
-  operatorAddress: string;
+  address: string;
   /**
    * Burn数量
    */
-  amount: string;
+  value: string;
   /**
    * 操作 Hash
    */

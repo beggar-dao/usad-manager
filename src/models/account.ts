@@ -76,7 +76,7 @@ export default function AccountModel() {
       message.error('Failed');
     }
   }, [transactionStatus]);
-  
+
   const changeNetWork = async (chainId: number) => {
     await switchChain({ chainId });
   };
@@ -113,7 +113,7 @@ export default function AccountModel() {
     );
   };
 
-  const handleRedeem = (amount: string) => {
+  const handleRedeem = (amount: string, onSuccess?: (hash: string) => void) => {
     if (!isSelf) {
       message.error('No permission');
       return;
@@ -136,6 +136,7 @@ export default function AccountModel() {
             setLoading(false);
             setCallbackFunc(() => () => {});
           });
+          onSuccess?.(data);
         },
         onError: (error) => {
           setLoading(false);
@@ -263,8 +264,9 @@ export default function AccountModel() {
       },
     );
   };
-  
+
   return {
+    isSelf,
     readContractsData,
     handleRedeem,
     handleMint,
