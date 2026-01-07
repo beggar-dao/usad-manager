@@ -1,20 +1,49 @@
 import { useModel } from "@umijs/max";
-import { Button, Card, Form, InputNumber } from "antd";
+import { Button, Card, Form, InputNumber, message, Alert } from "antd";
 import { useEffect, useState } from "react";
 import Dashboard from "../dashboard";
 import { weiToEther } from "@/utils";
+import { getBurnAddresses, burnTokens } from "@/services/burn";
+import OperationRecordTable from "./components/OperationRecordTable";
 
 export default function Burn() {
   const [form] = Form.useForm();
   const [disabled, setDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [isWhitelisted, setIsWhitelisted] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const {
     status,
     changeNetWork,
     openConnectModal,
     readContractsData,
     handleRedeem,
+    address,
   } = useModel("account");
   const values = Form.useWatch([], form);
+
+  // Check if user address is whitelisted for burn operations
+  useEffect(() => {
+    const checkWhitelist = async () => {
+      if (!address) {
+        setIsWhitelisted(false);
+        return;
+      }
+      try {
+        const response = await getBurnAddresses();
+        if (response?.data?.list) {
+          const isAllowed = response.data.list.some(
+            (addr) => addr.address.toLowerCase() === address.toLowerCase()
+          );
+          setIsWhitelisted(isAllowed);
+        }
+      } catch (error) {
+        console.error("Failed to check whitelist:", error);
+        setIsWhitelisted(false);
+      }
+    };
+    checkWhitelist();
+  }, [address]);
 
   useEffect(() => {
     form
@@ -24,12 +53,40 @@ export default function Burn() {
   }, [form, values]);
 
   const onFinish = async (values: any) => {
-    if (status === "connected") {
-      await changeNetWork(9200);
-      handleRedeem(values.amount);
+    if (status !== "connected") {
+      openConnectModal?.();
       return;
     }
-    openConnectModal?.();
+
+    if (!isWhitelisted) {
+      message.error("Your address is not whitelisted for burn operations");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Get transaction hash from handleRedeem or use a placeholder
+      await changeNetWork(9200);
+
+      // Call the burn API
+      const burnResponse = await burnTokens({
+        operatorAddress: address!,
+        amount: values.amount.toString(),
+        hash: "", // This will be set after transaction is confirmed
+      });
+
+      if (burnResponse) {
+        message.success("Burn operation initiated successfully");
+        form.resetFields();
+        // Trigger table refresh
+        setRefreshTrigger((prev) => prev + 1);
+      }
+    } catch (error) {
+      console.error("Burn operation failed:", error);
+      message.error("Burn operation failed");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -63,6 +120,17 @@ export default function Burn() {
             </p>
           </div>
         </div>
+
+        {status === "connected" && !isWhitelisted && (
+          <Alert
+            message="Not Whitelisted"
+            description="Your address is not whitelisted for burn operations. Please contact the administrator."
+            type="error"
+            showIcon
+            className="mb-6"
+          />
+        )}
+
         <Form size="large" onFinish={onFinish} layout="vertical" form={form}>
           <Form.Item
             rules={[
@@ -139,7 +207,8 @@ export default function Burn() {
           </div>
           <Form.Item label={null}>
             <Button
-              disabled={disabled}
+              disabled={disabled || !isWhitelisted || status !== "connected"}
+              loading={loading}
               className="w-full"
               htmlType="submit"
               type="primary"
@@ -148,6 +217,18 @@ export default function Burn() {
             </Button>
           </Form.Item>
         </Form>
+      </Card>
+
+      {/* Operation Records Table */}
+      <Card className="w-full mt-6 md:w-[800px]">
+        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          Burn Operation Records
+        </h3>
+        <OperationRecordTable
+          operatorAddress={address}
+          operationType="burn"
+          refreshTrigger={refreshTrigger}
+        />
       </Card>
     </>
   );
