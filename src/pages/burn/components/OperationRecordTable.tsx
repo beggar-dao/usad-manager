@@ -1,7 +1,7 @@
-import { Table, Empty, Spin } from 'antd';
-import { useEffect, useState } from 'react';
-import { getOperations, OperationItem } from '@/services/burn';
+import { Empty, Spin, Table } from 'antd';
 import dayjs from 'dayjs';
+import { useEffect, useState } from 'react';
+import { getOperations, type OperationItem } from '@/services/burn';
 
 interface OperationRecordTableProps {
   operatorAddress?: string;
@@ -31,8 +31,6 @@ export default function OperationRecordTable({
         pageSize: pagination.pageSize,
         behavior: operationType,
       });
-
-      console.log('Operations response:', response);
 
       if (response) {
         setData(response.data.list || []);
