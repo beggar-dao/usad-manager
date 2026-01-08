@@ -22,7 +22,6 @@ import { etherToWei } from '@/utils/index';
 export default function AccountModel() {
   const { setLoading } = useModel('global');
   const { address, status, chainId } = useAccount();
-  const { isWhitelisted } = useWhitelistCheck();
 
   const { data: readContractsData, refetch: readContractsRefetch } =
     useReadContracts({
@@ -153,11 +152,6 @@ export default function AccountModel() {
     onSuccess?: () => void,
     onError?: () => void,
   ) => {
-    if (!isWhitelisted || !address) {
-      message.error('No permission');
-      return;
-    }
-
     setLoading(true);
 
     writeContract(
