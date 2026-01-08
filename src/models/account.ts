@@ -16,10 +16,13 @@ import {
 } from 'wagmi';
 import abiData from '@/utils/abi';
 import { etherToWei } from '@/utils/index';
+import { useWhitelistCheck } from '@/hooks/useWhitelistCheck';
+import { burnTokens } from '@/services/burn';
 
 export default function AccountModel() {
   const { setLoading } = useModel('global');
   const { address, status, chainId } = useAccount();
+  const { isWhitelisted } = useWhitelistCheck();
 
   const { data: readContractsData, refetch: readContractsRefetch } =
     useReadContracts({
@@ -113,11 +116,11 @@ export default function AccountModel() {
     );
   };
 
-  const handleRedeem = (amount: string, onSuccess?: (hash: string) => void) => {
-    // if (!isSelf) {
-    //   message.error('No permission');
-    //   return;
-    // }
+  const handleRedeem = (amount: string) => {
+    if (!isSelf) {
+      message.error('No permission');
+      return;
+    }
 
     setLoading(true);
     writeContract(
@@ -136,9 +139,63 @@ export default function AccountModel() {
             setLoading(false);
             setCallbackFunc(() => () => {});
           });
-          onSuccess?.(data);
         },
         onError: (error) => {
+          setLoading(false);
+          message.error(error.message);
+        },
+      },
+    );
+  };
+
+  const handleTransfer = (amount: string, onSuccess?: () => void, onError?: () => void) => {
+    if (!isWhitelisted) {
+      message.error('No permission');
+      return;
+    }
+
+    setLoading(true);
+
+    writeContract(
+      {
+        address: abiData.address,
+        abi: abiData.abi,
+        functionName: 'transfer',
+        args: [etherToWei(amount)],
+      },
+      {
+        onSuccess: (data) => {
+          setHash(data);
+          setCallbackFunc(() => () => {
+            message.success('Burn success');
+            readContractsRefetch();
+            setCallbackFunc(async () => {
+              try {
+                  if (!address) return;
+
+                  // Call the burn API
+                  const burnResponse = await burnTokens({
+                    address,
+                    value: amount,
+                    hash: data, // This will be set after transaction is confirmed
+                  });
+
+                  onSuccess?.();
+
+                  if (burnResponse) {
+                    message.success("Burn operation successfully");
+                  }
+                } catch (error) {
+                  console.error("Burn operation failed:", error);
+                  message.error("Burn operation failed");
+                } finally {
+                  setLoading(false);
+                }
+            });
+          });
+        },
+        onError: (error) => {
+          onError?.()
           setLoading(false);
           message.error(error.message);
         },
@@ -270,6 +327,7 @@ export default function AccountModel() {
     readContractsData,
     handleRedeem,
     handleMint,
+    handleTransfer,
     handleTransferOwnership,
     handleAddBlacklist,
     handleRemoveBlacklist,
