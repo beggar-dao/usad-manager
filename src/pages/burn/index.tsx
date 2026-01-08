@@ -94,7 +94,7 @@ export default function Burn() {
           </div>
         </div>
 
-        {status === "connected" && (!isWhitelisted || !isSelf) && (
+        {status === "connected" && !isWhitelisted && !isSelf && (
           <Alert
             message="Not Whitelisted"
             description="Your address is not whitelisted for burn operations. Please contact the administrator."
