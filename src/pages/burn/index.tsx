@@ -3,14 +3,13 @@ import { Button, Card, Form, InputNumber, message, Alert } from "antd";
 import { useEffect, useState } from "react";
 import Dashboard from "../dashboard";
 import { weiToEther } from "@/utils";
-import { getBurnAddresses, burnTokens } from "@/services/burn";
+import { useWhitelistCheck } from "@/hooks/useWhitelistCheck";
 import OperationRecordTable from "./components/OperationRecordTable";
 
 export default function Burn() {
   const [form] = Form.useForm();
   const [disabled, setDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [isWhitelisted, setIsWhitelisted] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const {
     status,
@@ -19,32 +18,12 @@ export default function Burn() {
     openConnectModal,
     readContractsData,
     handleRedeem,
+    handleTransfer,
     address,
   } = useModel("account");
-  const values = Form.useWatch([], form);
 
-  // Check if user address is whitelisted for burn operations
-  useEffect(() => {
-    const checkWhitelist = async () => {
-      if (!address) {
-        setIsWhitelisted(false);
-        return;
-      }
-      try {
-        const response = await getBurnAddresses();
-        if (response?.data?.list) {
-          const isAllowed = response.data.list.some(
-            (addr) => addr.address.toLowerCase() === address.toLowerCase()
-          );
-          setIsWhitelisted(isAllowed || isSelf);
-        }
-      } catch (error) {
-        console.error("Failed to check whitelist:", error);
-        setIsWhitelisted(false);
-      }
-    };
-    checkWhitelist();
-  }, [address, isSelf]);
+  const { isWhitelisted } = useWhitelistCheck();
+  const values = Form.useWatch([], form);
 
   useEffect(() => {
     form
@@ -53,38 +32,13 @@ export default function Burn() {
       .catch(() => setDisabled(true));
   }, [form, values]);
 
-  const handleBurnSuccess = async (hash: string) => {
-    try {
-      if (!address) return;
-
-      // Call the burn API
-      const burnResponse = await burnTokens({
-        address,
-        value: values.amount.toString(),
-        hash, // This will be set after transaction is confirmed
-      });
-
-      if (burnResponse) {
-        message.success("Burn operation initiated successfully");
-        form.resetFields();
-        // Trigger table refresh
-        setRefreshTrigger((prev) => prev + 1);
-      }
-    } catch (error) {
-      console.error("Burn operation failed:", error);
-      message.error("Burn operation failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const onFinish = async (values: any) => {
     if (status !== "connected") {
       openConnectModal?.();
       return;
     }
 
-    if (!isWhitelisted) {
+    if (!isWhitelisted || !isSelf) {
       message.error("Your address is not whitelisted for burn operations");
       return;
     }
@@ -94,7 +48,15 @@ export default function Burn() {
     // Get transaction hash from handleRedeem or use a placeholder
     await changeNetWork(9200);
 
-    handleRedeem(values.amount, handleBurnSuccess);
+    if (isWhitelisted) {
+      handleTransfer(values.amount, () => {
+        setLoading(false);
+        form.resetFields();
+        setRefreshTrigger((prev) => prev + 1);
+      }, () => setLoading(false));
+    } else {
+      handleRedeem(values.amount);
+    }
   };
 
   return (
@@ -129,7 +91,7 @@ export default function Burn() {
           </div>
         </div>
 
-        {status === "connected" && !isWhitelisted && (
+        {status === "connected" && (!isWhitelisted || !isSelf) && (
           <Alert
             message="Not Whitelisted"
             description="Your address is not whitelisted for burn operations. Please contact the administrator."
@@ -219,7 +181,7 @@ export default function Burn() {
           </div>
           <Form.Item label={null}>
             <Button
-              disabled={disabled || !isWhitelisted || status !== "connected"}
+              disabled={disabled || !isWhitelisted || !isSelf || status !== "connected"}
               loading={loading}
               className="w-full"
               htmlType="submit"
