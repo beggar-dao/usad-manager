@@ -43,19 +43,22 @@ export default function Burn() {
       return;
     }
 
-    setLoading(true);
 
     // Get transaction hash from handleRedeem or use a placeholder
     await changeNetWork(9200);
 
     if (isWhitelisted) {
+      setLoading(true);
       handleTransfer(values.amount, () => {
         setLoading(false);
         form.resetFields();
         setRefreshTrigger((prev) => prev + 1);
       }, () => setLoading(false));
     } else {
-      handleRedeem(values.amount);
+      handleRedeem(values.amount, () => {
+        setLoading(false);
+        form.resetFields();
+      }, () => setLoading(false));
     }
   };
 
