@@ -3,7 +3,6 @@ import {
   useChainModal,
   useConnectModal,
 } from '@rainbow-me/rainbowkit';
-import { addBlacklist, deleteBlacklist } from '@/services/blacklist';
 import { useModel } from '@umijs/max';
 import { message } from 'antd';
 import { useEffect, useMemo, useState } from 'react';
@@ -14,10 +13,11 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from 'wagmi';
+import { useWhitelistCheck } from '@/hooks/useWhitelistCheck';
+import { addBlacklist, deleteBlacklist } from '@/services/blacklist';
+import { burnTokens } from '@/services/burn';
 import abiData from '@/utils/abi';
 import { etherToWei } from '@/utils/index';
-import { useWhitelistCheck } from '@/hooks/useWhitelistCheck';
-import { burnTokens } from '@/services/burn';
 
 export default function AccountModel() {
   const { setLoading } = useModel('global');
@@ -51,8 +51,8 @@ export default function AccountModel() {
 
   const isSelf = useMemo(() => {
     return (
-      (readContractsData?.[0]?.result?.toString().toLowerCase()) ===
-      (address?.toString().toLowerCase())
+      readContractsData?.[0]?.result?.toString().toLowerCase() ===
+      address?.toString().toLowerCase()
     );
   }, [readContractsData, address]);
 
@@ -148,8 +148,12 @@ export default function AccountModel() {
     );
   };
 
-  const handleTransfer = (amount: string, onSuccess?: () => void, onError?: () => void) => {
-    if (!isWhitelisted) {
+  const handleTransfer = (
+    amount: string,
+    onSuccess?: () => void,
+    onError?: () => void,
+  ) => {
+    if (!isWhitelisted || !address) {
       message.error('No permission');
       return;
     }
@@ -161,7 +165,7 @@ export default function AccountModel() {
         address: abiData.address,
         abi: abiData.abi,
         functionName: 'transfer',
-        args: [etherToWei(amount)],
+        args: [address as `0x${string}`, etherToWei(amount)],
       },
       {
         onSuccess: (data) => {
@@ -171,31 +175,31 @@ export default function AccountModel() {
             readContractsRefetch();
             setCallbackFunc(async () => {
               try {
-                  if (!address) return;
+                if (!address) return;
 
-                  // Call the burn API
-                  const burnResponse = await burnTokens({
-                    address,
-                    value: amount,
-                    hash: data, // This will be set after transaction is confirmed
-                  });
+                // Call the burn API
+                const burnResponse = await burnTokens({
+                  address,
+                  value: amount,
+                  hash: data, // This will be set after transaction is confirmed
+                });
 
-                  onSuccess?.();
+                onSuccess?.();
 
-                  if (burnResponse) {
-                    message.success("Burn operation successfully");
-                  }
-                } catch (error) {
-                  console.error("Burn operation failed:", error);
-                  message.error("Burn operation failed");
-                } finally {
-                  setLoading(false);
+                if (burnResponse) {
+                  message.success('Burn operation successfully');
                 }
+              } catch (error) {
+                console.error('Burn operation failed:', error);
+                message.error('Burn operation failed');
+              } finally {
+                setLoading(false);
+              }
             });
           });
         },
         onError: (error) => {
-          onError?.()
+          onError?.();
           setLoading(false);
           message.error(error.message);
         },
@@ -234,7 +238,10 @@ export default function AccountModel() {
     );
   };
 
-  const handleAddBlacklist = (data: { address: string; reason: string }, onSuccess?: () => void) => {
+  const handleAddBlacklist = (
+    data: { address: string; reason: string },
+    onSuccess?: () => void,
+  ) => {
     if (!isSelf) {
       message.error('No permission');
       return;
@@ -264,7 +271,9 @@ export default function AccountModel() {
               onSuccess?.();
             } catch (error) {
               console.error('Failed to save to database:', error);
-              message.error('Transaction succeeded but failed to save to database');
+              message.error(
+                'Transaction succeeded but failed to save to database',
+              );
             } finally {
               setLoading(false);
               setCallbackFunc(() => () => {});
@@ -307,7 +316,9 @@ export default function AccountModel() {
               onSuccess?.();
             } catch (error) {
               console.error('Failed to update database:', error);
-              message.error('Transaction succeeded but failed to update database');
+              message.error(
+                'Transaction succeeded but failed to update database',
+              );
             } finally {
               setLoading(false);
               setCallbackFunc(() => () => {});
