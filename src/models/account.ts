@@ -115,7 +115,7 @@ export default function AccountModel() {
     );
   };
 
-  const handleRedeem = (amount: string) => {
+  const handleRedeem = (amount: string, onSuccess?: () => void, onError?: () => void) => {
     if (!isSelf) {
       message.error('No permission');
       return;
@@ -138,10 +138,12 @@ export default function AccountModel() {
             setLoading(false);
             setCallbackFunc(() => () => {});
           });
+          onSuccess?.();
         },
         onError: (error) => {
           setLoading(false);
           message.error(error.message);
+          onError?.();
         },
       },
     );
