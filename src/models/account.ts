@@ -114,10 +114,10 @@ export default function AccountModel() {
   };
 
   const handleRedeem = (amount: string, onSuccess?: (hash: string) => void) => {
-    if (!isSelf) {
-      message.error('No permission');
-      return;
-    }
+    // if (!isSelf) {
+    //   message.error('No permission');
+    //   return;
+    // }
 
     setLoading(true);
     writeContract(

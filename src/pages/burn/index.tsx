@@ -189,6 +189,7 @@ export default function Burn() {
                 }
               }}
               min={1}
+              precision={4}
               className="w-full"
             />
           </Form.Item>
