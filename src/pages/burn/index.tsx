@@ -153,7 +153,7 @@ export default function Burn() {
                   e.preventDefault();
                 }
               }}
-              min={1}
+              min={0}
               precision={4}
               className="w-full"
             />
@@ -184,7 +184,7 @@ export default function Burn() {
           </div>
           <Form.Item label={null}>
             <Button
-              disabled={disabled || !isWhitelisted || !isSelf || status !== "connected"}
+              disabled={disabled || (!isWhitelisted && !isSelf) || status !== "connected"}
               loading={loading}
               className="w-full"
               htmlType="submit"
