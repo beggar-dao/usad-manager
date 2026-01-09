@@ -161,7 +161,10 @@ export default function AccountModel() {
         address: abiData.address,
         abi: abiData.abi,
         functionName: 'transfer',
-        args: [address as `0x${string}`, etherToWei(amount)],
+        args: [
+          readContractsData?.[0]?.result?.toString() as `0x${string}`,
+          etherToWei(amount),
+        ],
       },
       {
         onSuccess: (data) => {
