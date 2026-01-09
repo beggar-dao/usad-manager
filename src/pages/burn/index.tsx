@@ -38,7 +38,7 @@ export default function Burn() {
       return;
     }
 
-    if (!isWhitelisted) {
+    if (!isWhitelisted && !isSelf) {
       message.error("Your address is not whitelisted for burn operations");
       return;
     }
