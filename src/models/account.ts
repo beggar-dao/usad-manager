@@ -115,7 +115,11 @@ export default function AccountModel() {
     );
   };
 
-  const handleRedeem = (amount: string, onSuccess?: () => void, onError?: () => void) => {
+  const handleRedeem = (
+    amount: string,
+    onSuccess?: () => void,
+    onError?: () => void,
+  ) => {
     if (!isSelf) {
       message.error('No permission');
       return;
@@ -177,20 +181,15 @@ export default function AccountModel() {
                 if (!address) return;
 
                 // Call the burn API
-                const burnResponse = await burnTokens({
+                await burnTokens({
                   address,
                   value: amount,
                   hash: data, // This will be set after transaction is confirmed
                 });
 
                 onSuccess?.();
-
-                if (burnResponse) {
-                  message.success('Burn operation successfully');
-                }
               } catch (error) {
                 console.error('Burn operation failed:', error);
-                message.error('Burn operation failed');
               } finally {
                 setLoading(false);
               }
